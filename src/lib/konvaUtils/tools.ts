@@ -57,16 +57,17 @@ export const selectTool = (stage: Stage, layer: Layer, tool: Tool) => {
     resetStage(stage);
     selectedTool.set(tool);
     enableDraggable(layer, tool === "select")
-    // if (colorSubscription) colorSubscription();
-    // colorSubscription = selectedColor.subscribe((color) => {
-    //     const selectedObjects = canvas.getActiveObjects();
-    //     selectedObjects.forEach((obj) => {
-    //         obj.set({ stroke: color });
-    //         canvas.renderAll();
-    //     });
-    //     if (canvas.freeDrawingBrush) canvas.freeDrawingBrush.color = color;
-    //     canvas.requestRenderAll();
-    // });
+    if (colorSubscription) colorSubscription();
+    colorSubscription = selectedColor.subscribe((color) => {
+        let tr: Transformer = <Transformer>layer.getChildren().find((child) => child.id() == "global-selector")
+        if (!tr) return
+        const selectedObjects = tr.getNodes();
+        console.log(color)
+        selectedObjects.forEach((obj) => {
+            if (obj instanceof Shape) obj.stroke(color);
+        });
+        layer.batchDraw();
+    });
     switch (tool) {
         case "select":
             activateSelect(stage, layer)
@@ -237,13 +238,6 @@ function activateFreeDrawing(stage: Stage, layer: Layer, mode: "brush" | "eraser
         });
         layer.add(lastLine);
     })
-    stage.on('mouseup touchend', function () {
-        if (!isPaint) return;
-        isPaint = false;
-        if (mode == "brush") {
-            selectNodes(layer, [lastLine])
-        }
-    });
     stage.on('mousemove touchmove', function (e) {
         if (!isPaint) return;
         // prevent scrolling on touch devices
@@ -254,6 +248,14 @@ function activateFreeDrawing(stage: Stage, layer: Layer, mode: "brush" | "eraser
         const newPoints = lastLine.points().concat([transformedPos.x, transformedPos.y]);
         lastLine.points(newPoints);
     });
+    stage.on('mouseup touchend', function () {
+        if (!isPaint) return;
+        isPaint = false;
+        if (mode == "brush") {
+            selectNodes(layer, [lastLine])
+        }
+    });
+
 }
 
 function activateArrow(stage: Stage, layer: Layer) {
