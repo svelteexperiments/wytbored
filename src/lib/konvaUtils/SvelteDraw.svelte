@@ -6,6 +6,7 @@
   import Toolbar from "./Toolbar.svelte";
   import { initKonva } from "./utils.js";
   import type { Transformer } from "konva/lib/shapes/Transformer.js";
+  import HelpModal from "./HelpModal.svelte";
 
   let containerDiv: HTMLDivElement;
   let stageWidth = window.innerWidth;
@@ -42,3 +43,4 @@
   <StyleToolbar />
   <Toolbar {stage} {layer} />
 {/if}
+<HelpModal />
