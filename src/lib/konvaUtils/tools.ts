@@ -40,8 +40,12 @@ type Tool =
 
 export let selectedTool = writable<Tool>("select");
 export let selectedColor = writable<string>("#000000");
+export let opacity = writable<number>(1)
+export let strokeStyle = writable<"solid" | "dash" | "dot">("solid")
 
 let colorSubscription: Unsubscriber;
+let opacitySubscription: Unsubscriber;
+let strokeStyleSubscription: Unsubscriber;
 
 const resetStage = (stage: Stage, selectTool: "select" | null = null) => {
     stage.off();
@@ -62,9 +66,42 @@ export const selectTool = (stage: Stage, layer: Layer, tool: Tool) => {
         let tr: Transformer = <Transformer>layer.getChildren().find((child) => child.id() == "global-selector")
         if (!tr) return
         const selectedObjects = tr.getNodes();
-        console.log(color)
         selectedObjects.forEach((obj) => {
             if (obj instanceof Shape) obj.stroke(color);
+        });
+        layer.batchDraw();
+    });
+    if (opacitySubscription) opacitySubscription();
+    opacitySubscription = opacity.subscribe((val) => {
+        let tr: Transformer = <Transformer>layer.getChildren().find((child) => child.id() == "global-selector")
+        if (!tr) return
+        const selectedObjects = tr.getNodes();
+        selectedObjects.forEach((obj) => {
+            if (obj instanceof Shape) obj.opacity(val);
+        });
+        layer.batchDraw();
+    });
+    if (strokeStyleSubscription) strokeStyleSubscription();
+    strokeStyleSubscription = strokeStyle.subscribe((val) => {
+        let tr: Transformer = <Transformer>layer.getChildren().find((child) => child.id() == "global-selector")
+        if (!tr) return
+        const selectedObjects = tr.getNodes();
+        selectedObjects.forEach((obj) => {
+            if (obj instanceof Shape) {
+                switch (val) {
+                    case "solid":
+                        obj.dash([])
+                        break;
+                    case "dash":
+                        obj.dash([33, 10])
+                        break;
+                    case "dot":
+                        obj.dash([5, 5])
+                        break;
+                    default:
+                        break;
+                }
+            }
         });
         layer.batchDraw();
     });
@@ -229,6 +266,7 @@ function activateFreeDrawing(stage: Stage, layer: Layer, mode: "brush" | "eraser
         const transformedPos = transformPoints(stage, pos)
         lastLine = new Line({
             name: 'shape',
+            dash: getStrokeStyle(),
             stroke: get(selectedColor),
             strokeWidth: mode === 'brush' ? 5 : 30,
             globalCompositeOperation: mode === 'brush' ? 'source-over' : 'destination-out',
@@ -275,6 +313,7 @@ function activateArrow(stage: Stage, layer: Layer) {
         const transformedStartPos = transformPoints(stage, startPos)
         previewShape = new Arrow({
             name: 'shape',
+            dash: getStrokeStyle(),
             points: [transformedStartPos.x, transformedStartPos.y],
             fill: "transparent",
             stroke: get(selectedColor),
@@ -316,6 +355,7 @@ function activateLine(stage: Stage, layer: Layer) {
         const transformedStartPos = transformPoints(stage, startPos)
         previewShape = new Line({
             name: 'shape',
+            dash: getStrokeStyle(),
             points: [transformedStartPos.x, transformedStartPos.y],
             fill: "transparent",
             stroke: get(selectedColor),
@@ -497,6 +537,7 @@ function activateRect(stage: Stage, layer: Layer) {
         const transformedStartPos = transformPoints(stage, startPos)
         previewShape = new Rect({
             name: 'shape',
+            dash: getStrokeStyle(),
             x: transformedStartPos.x,
             y: transformedStartPos.y,
             width: 0,
@@ -557,6 +598,7 @@ function activateCircle(stage: Stage, layer: Layer) {
         const transformedStartPos = transformPoints(stage, startPos)
         previewShape = new Ellipse({
             name: 'shape',
+            dash: getStrokeStyle(),
             x: transformedStartPos.x,
             y: transformedStartPos.y,
             radiusX: 1, // Initial radius
@@ -603,6 +645,7 @@ function activateStar(stage: Stage, layer: Layer) {
         const transformedStartPos = transformPoints(stage, startPos)
         previewShape = new Star({
             name: 'shape',
+            dash: getStrokeStyle(),
             x: transformedStartPos.x,
             y: transformedStartPos.y,
             numPoints: 5,
@@ -655,6 +698,7 @@ function activatePolygon(stage: Stage, layer: Layer, sides: number) {
         const transformedStartPos = transformPoints(stage, startPos)
         previewShape = new RegularPolygon({
             name: 'shape',
+            dash: getStrokeStyle(),
             x: transformedStartPos.x,
             y: transformedStartPos.y,
             sides,
@@ -701,6 +745,7 @@ function activateHeart(stage: Stage, layer: Layer) {
         const transformedStartPos = transformPoints(stage, startPos)
         previewShape = new Shape({
             name: 'shape',
+            dash: getStrokeStyle(),
             x: transformedStartPos.x,
             y: transformedStartPos.y,
             width: 0,
@@ -788,6 +833,7 @@ function activateBoxWithX(stage: Stage, layer: Layer) {
             name: "shape"
         })
         rect = new Rect({
+            dash: getStrokeStyle(),
             x: startX,
             y: startY,
             width: 0,
@@ -797,12 +843,14 @@ function activateBoxWithX(stage: Stage, layer: Layer) {
         });
 
         line1 = new Line({
+            dash: getStrokeStyle(),
             points: [startX, startY, startX, startY],
             stroke: get(selectedColor),
             strokeWidth: STROKE_WIDTH
         });
 
         line2 = new Line({
+            dash: getStrokeStyle(),
             points: [startX, startY, startX, startY],
             stroke: get(selectedColor),
             strokeWidth: STROKE_WIDTH
@@ -853,6 +901,7 @@ function activateBoxWithCheck(stage: Stage, layer: Layer) {
             name: "shape"
         })
         rect = new Rect({
+            dash: getStrokeStyle(),
             x: startX,
             y: startY,
             width: 0,
@@ -862,6 +911,7 @@ function activateBoxWithCheck(stage: Stage, layer: Layer) {
         });
 
         check = new Line({
+            dash: getStrokeStyle(),
             points: [startX, startY, startX, startY],
             stroke: get(selectedColor),
             strokeWidth: STROKE_WIDTH
@@ -915,6 +965,7 @@ function activateFatArrow(stage: Stage, layer: Layer) {
         startX = transformedPos.x;
         startY = transformedPos.y;
         fatArrow = new Line({
+            dash: getStrokeStyle(),
             name: "shape",
             points: [startX, startY, startX, startY],
             stroke: get(selectedColor),
@@ -992,4 +1043,19 @@ function transformPoints(stage: Stage, pos: Vector2d) {
     const transform = stage.getAbsoluteTransform().copy()
     transform.invert()
     return transform.point(pos)
+}
+
+function getStrokeStyle() {
+    let dash: number[] = []
+    switch (get(strokeStyle)) {
+        case "dash":
+            dash = [33, 10]
+            break;
+        case "dot":
+            dash = [5, 5]
+            break;
+        default:
+            break;
+    }
+    return dash
 }

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { selectedColor } from "./tools.js";
+  import { opacity, selectedColor, strokeStyle } from "./tools.js";
 
   const colors = [
     {
@@ -63,5 +63,17 @@
     {/each}
   </div>
   <hr />
-  <input type="range" min="0.2" max="1" step="0.1" value="1" />
+  <input type="range" min="0.2" max="1" step="0.1" bind:value={$opacity} />
+  <hr />
+  <div class="grid grid-cols-3 place-items-center mb-2">
+    <button class="border-2 border-black p-2 w-6 h-6 hover:bg-gray-100 {$strokeStyle === 'solid' ? 'bg-gray-200' : ''} rounded-full" onclick={() => ($strokeStyle = "solid")}>
+      <!-- Nothing -->
+    </button>
+    <button class="border-2 border-dashed border-black p-2 w-6 h-6 hover:bg-gray-100 {$strokeStyle === 'dash' ? 'bg-gray-200' : ''} rounded-full" onclick={() => ($strokeStyle = "dash")}>
+      <!-- Nothing -->
+    </button>
+    <button class="border-2 border-dotted border-black p-2 w-6 h-6 hover:bg-gray-100 {$strokeStyle === 'dot' ? 'bg-gray-200' : ''} rounded-full" onclick={() => ($strokeStyle = "dot")}>
+      <!-- Nothing -->
+    </button>
+  </div>
 </div>
