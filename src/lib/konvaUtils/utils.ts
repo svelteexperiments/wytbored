@@ -26,42 +26,42 @@ export const initKonva = (containerDiv: HTMLDivElement, stageWidth: number, stag
     layer.add(tr)
     stage.add(layer);
 
-    // registerDefaultEvents(stage)
+    registerDefaultEvents(stage)
 
     return { stage, layer }
 }
 
-// export const registerDefaultEvents = (stage: Stage) => {
-//     let scale = 1
-//     // Scale limits
-//     const MIN_SCALE = 0.5; // 50%
-//     const MAX_SCALE = 4; // 400%
-//     // Handle zoom with mouse wheel
-//     stage.on("wheel", (e) => {
-//         e.evt.preventDefault();
-//         if (!stage) return;
+export const registerDefaultEvents = (stage: Stage) => {
+    let scale = 1
+    // Scale limits
+    const MIN_SCALE = 0.5; // 50%
+    const MAX_SCALE = 4; // 400%
+    // Handle zoom with mouse wheel
+    stage.on("wheel", (e) => {
+        e.evt.preventDefault();
+        if (!stage) return;
 
-//         const oldScale = stage.scaleX();
-//         const pointer = stage.getPointerPosition();
-//         if (!pointer) return;
-//         const mousePointTo = {
-//             x: (pointer.x - stage.x()) / oldScale,
-//             y: (pointer.y - stage.y()) / oldScale,
-//         };
+        const oldScale = stage.scaleX();
+        const pointer = stage.getPointerPosition();
+        if (!pointer) return;
+        const mousePointTo = {
+            x: (pointer.x - stage.x()) / oldScale,
+            y: (pointer.y - stage.y()) / oldScale,
+        };
 
-//         let newScale = oldScale * (e.evt.deltaY > 0 ? 0.9 : 1.1);
-//         newScale = Math.max(MIN_SCALE, Math.min(newScale, MAX_SCALE));
-//         scale = newScale;
+        let newScale = oldScale * (e.evt.deltaY > 0 ? 0.9 : 1.1);
+        newScale = Math.max(MIN_SCALE, Math.min(newScale, MAX_SCALE));
+        scale = newScale;
 
-//         stage.scale({ x: newScale, y: newScale });
+        stage.scale({ x: newScale, y: newScale });
 
-//         const newPos = {
-//             x: pointer.x - mousePointTo.x * newScale,
-//             y: pointer.y - mousePointTo.y * newScale,
-//         };
+        const newPos = {
+            x: pointer.x - mousePointTo.x * newScale,
+            y: pointer.y - mousePointTo.y * newScale,
+        };
 
-//         stage.position(newPos);
-//         stage.batchDraw();
-//     });
-// }
+        stage.position(newPos);
+        stage.batchDraw();
+    });
+}
 

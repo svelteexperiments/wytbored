@@ -13,11 +13,14 @@ import { Shape } from "konva/lib/Shape.js";
 import { Transformer } from "konva/lib/shapes/Transformer.js";
 import type { Node, NodeConfig } from "konva/lib/Node.js";
 import { Util } from "konva/lib/Util.js";
+import { registerDefaultEvents } from "./utils.js";
+import { Group } from "konva/lib/Group.js";
 
 const STROKE_WIDTH = 5;
 
 type Tool =
     | "select"
+    | "hand"
     | "pen"
     | "eraser"
     | "arrow"
@@ -30,7 +33,10 @@ type Tool =
     | "diamond"
     | "hexagon"
     | "star"
-    | "heart";
+    | "heart"
+    | "boxX"
+    | "boxCheck"
+    | "fatArrow";
 
 export let selectedTool = writable<Tool>("select");
 export let selectedColor = writable<string>("#000000");
@@ -39,8 +45,9 @@ let colorSubscription: Unsubscriber;
 
 const resetStage = (stage: Stage, selectTool: "select" | null = null) => {
     stage.off();
+    stage.draggable(false)
     document.body.style.cursor = "default";
-    // registerDefaultEvents(canvas);
+    registerDefaultEvents(stage);
     if (selectTool) {
         selectedTool.set(selectTool);
     }
@@ -63,6 +70,9 @@ export const selectTool = (stage: Stage, layer: Layer, tool: Tool) => {
     switch (tool) {
         case "select":
             activateSelect(stage, layer)
+            break;
+        case "hand":
+            stage.draggable(true)
             break;
         case "pen":
             activateFreeDrawing(stage, layer, "brush")
@@ -102,6 +112,15 @@ export const selectTool = (stage: Stage, layer: Layer, tool: Tool) => {
         case "heart":
             activateHeart(stage, layer)
             break;
+        case "boxX":
+            activateBoxWithX(stage, layer)
+            break;
+        case "boxCheck":
+            activateBoxWithCheck(stage, layer)
+            break;
+        case "fatArrow":
+            activateFatArrow(stage, layer)
+            break;
         default:
             break;
     }
@@ -124,10 +143,13 @@ function activateSelect(stage: Stage, layer: Layer) {
             return;
         }
         e.evt.preventDefault();
-        x1 = stage.getPointerPosition()?.x;
-        y1 = stage.getPointerPosition()?.y;
-        x2 = stage.getPointerPosition()?.x;
-        y2 = stage.getPointerPosition()?.y;
+        const pos = stage.getPointerPosition();
+        if (!pos) return
+        const transformedPos = transformPoints(stage, pos)
+        x1 = transformedPos.x;
+        y1 = transformedPos.y;
+        x2 = transformedPos.x;
+        y2 = transformedPos.y;
 
         selectionRectangle.width(0);
         selectionRectangle.height(0);
@@ -139,8 +161,11 @@ function activateSelect(stage: Stage, layer: Layer) {
             return;
         }
         e.evt.preventDefault();
-        x2 = stage.getPointerPosition()?.x;
-        y2 = stage.getPointerPosition()?.y;
+        const pos = stage.getPointerPosition();
+        if (!pos) return
+        const transformedPos = transformPoints(stage, pos)
+        x2 = transformedPos.x;
+        y2 = transformedPos.y;
         if (!x1) return;
         if (!x2) return;
         if (!y1) return;
@@ -200,6 +225,7 @@ function activateFreeDrawing(stage: Stage, layer: Layer, mode: "brush" | "eraser
         isPaint = true;
         const pos = stage.getPointerPosition();
         if (!pos) return
+        const transformedPos = transformPoints(stage, pos)
         lastLine = new Line({
             name: 'shape',
             stroke: get(selectedColor),
@@ -207,7 +233,7 @@ function activateFreeDrawing(stage: Stage, layer: Layer, mode: "brush" | "eraser
             globalCompositeOperation: mode === 'brush' ? 'source-over' : 'destination-out',
             lineCap: 'round',
             lineJoin: 'round',
-            points: [pos.x, pos.y, pos.x, pos.y],
+            points: [transformedPos.x, transformedPos.y, transformedPos.x, transformedPos.y],
         });
         layer.add(lastLine);
     })
@@ -224,7 +250,8 @@ function activateFreeDrawing(stage: Stage, layer: Layer, mode: "brush" | "eraser
         e.evt.preventDefault();
         const pos = stage.getPointerPosition();
         if (!pos) return
-        const newPoints = lastLine.points().concat([pos.x, pos.y]);
+        const transformedPos = transformPoints(stage, pos)
+        const newPoints = lastLine.points().concat([transformedPos.x, transformedPos.y]);
         lastLine.points(newPoints);
     });
 }
@@ -233,7 +260,6 @@ function activateArrow(stage: Stage, layer: Layer) {
     let isPaint = false
     document.body.style.cursor = "crosshair";
     let startPos: Vector2d | null = null;
-    let endPos: Vector2d | null = null;
     let previewShape: Arrow;
 
     stage.on('mousedown touchstart', (e) => {
@@ -244,8 +270,10 @@ function activateArrow(stage: Stage, layer: Layer) {
         isPaint = true
         startPos = stage.getPointerPosition();
         if (!startPos) return;
+        const transformedStartPos = transformPoints(stage, startPos)
         previewShape = new Arrow({
-            points: [startPos.x, startPos.y],
+            name: 'shape',
+            points: [transformedStartPos.x, transformedStartPos.y],
             fill: "transparent",
             stroke: get(selectedColor),
             strokeWidth: STROKE_WIDTH,
@@ -257,26 +285,15 @@ function activateArrow(stage: Stage, layer: Layer) {
         const pos = stage.getPointerPosition();
         if (!pos) return
         if (!startPos) return
-        previewShape.points([startPos.x, startPos.y, pos.x, pos.y]);
+        const transformedPos = transformPoints(stage, pos)
+        const transformedStartPos = transformPoints(stage, startPos)
+        previewShape.points([transformedStartPos.x, transformedStartPos.y, transformedPos.x, transformedPos.y]);
         layer.batchDraw();
     })
     stage.on('mouseup touchend', (e) => {
         if (!isPaint) return;
         isPaint = false;
-        previewShape.destroy();
-        endPos = stage.getPointerPosition();
-        if (!startPos) return
-        if (!endPos) return
-
-        const arrow = new Arrow({
-            name: 'shape',
-            points: [startPos.x, startPos.y, endPos.x, endPos.y],
-            fill: "transparent",
-            stroke: get(selectedColor),
-            strokeWidth: STROKE_WIDTH,
-        });
-        layer.add(arrow);
-        selectNodes(layer, [arrow])
+        selectNodes(layer, [previewShape])
     })
 }
 
@@ -284,7 +301,6 @@ function activateLine(stage: Stage, layer: Layer) {
     let isPaint = false
     document.body.style.cursor = "crosshair";
     let startPos: Vector2d | null = null;
-    let endPos: Vector2d | null = null;
     let previewShape: Line;
 
     stage.on('mousedown touchstart', (e) => {
@@ -295,8 +311,10 @@ function activateLine(stage: Stage, layer: Layer) {
         isPaint = true
         startPos = stage.getPointerPosition();
         if (!startPos) return;
+        const transformedStartPos = transformPoints(stage, startPos)
         previewShape = new Line({
-            points: [startPos.x, startPos.y],
+            name: 'shape',
+            points: [transformedStartPos.x, transformedStartPos.y],
             fill: "transparent",
             stroke: get(selectedColor),
             strokeWidth: STROKE_WIDTH,
@@ -308,40 +326,32 @@ function activateLine(stage: Stage, layer: Layer) {
         const pos = stage.getPointerPosition();
         if (!pos) return
         if (!startPos) return
-        previewShape.points([startPos.x, startPos.y, pos.x, pos.y]);
+        const transformedPos = transformPoints(stage, pos)
+        const transformedStartPos = transformPoints(stage, startPos)
+        previewShape.points([transformedStartPos.x, transformedStartPos.y, transformedPos.x, transformedPos.y]);
         layer.batchDraw();
     })
     stage.on('mouseup touchend', (e) => {
         if (!isPaint) return;
         isPaint = false;
-        previewShape.destroy();
-        endPos = stage.getPointerPosition();
-        if (!startPos) return;
-        if (!endPos) return;
-        const line = new Line({
-            name: 'shape',
-            points: [startPos.x, startPos.y, endPos.x, endPos.y],
-            fill: "transparent",
-            stroke: get(selectedColor),
-            strokeWidth: STROKE_WIDTH,
-        });
-        layer.add(line);
-        selectNodes(layer, [line])
+        selectNodes(layer, [previewShape])
     })
 }
 
 function activateText(stage: Stage, layer: Layer) {
-    stage.on("pointerclick", (e) => {
+    stage.on("click tap", (e) => {
         if (e.target !== stage) {
             e.cancelBubble = true;
             return;
         }
         const pos = stage.getPointerPosition();
+        if (!pos) return
+        const transformedPos = transformPoints(stage, pos)
         const textNode = new Text({
             name: 'shape',
             text: 'Some text here',
-            x: pos?.x,
-            y: pos?.y,
+            x: transformedPos.x,
+            y: transformedPos.y,
             fontSize: 30,
             // stroke: get(selectedColor),
             fontFamily: `"Chewy", serif`,
@@ -482,9 +492,11 @@ function activateRect(stage: Stage, layer: Layer) {
         isPaint = true;
         startPos = stage.getPointerPosition();
         if (!startPos) return;
+        const transformedStartPos = transformPoints(stage, startPos)
         previewShape = new Rect({
-            x: startPos.x,
-            y: startPos.y,
+            name: 'shape',
+            x: transformedStartPos.x,
+            y: transformedStartPos.y,
             width: 0,
             height: 0,
             fill: "transparent",
@@ -499,20 +511,22 @@ function activateRect(stage: Stage, layer: Layer) {
         endPos = stage.getPointerPosition();
         if (!startPos) return
         if (!endPos) return
-        if (startPos.x > endPos.x) {
-            let temp = startPos.x;
-            startPos.x = endPos.x;
-            endPos.x = temp;
+        const transformedStartPos = transformPoints(stage, startPos)
+        const transformedEndPos = transformPoints(stage, endPos)
+        if (transformedStartPos.x > transformedEndPos.x) {
+            let temp = transformedStartPos.x;
+            transformedStartPos.x = transformedEndPos.x;
+            transformedEndPos.x = temp;
         }
-        if (startPos.y > endPos.y) {
-            let temp = startPos.y;
-            startPos.y = endPos.y;
-            endPos.y = temp;
+        if (transformedStartPos.y > transformedEndPos.y) {
+            let temp = transformedStartPos.y;
+            transformedStartPos.y = transformedEndPos.y;
+            transformedEndPos.y = temp;
         }
 
-        const { x, y } = startPos;
-        const width = Math.abs(endPos.x - x);
-        const height = Math.abs(endPos.y - y);
+        const { x, y } = transformedStartPos;
+        const width = Math.abs(transformedEndPos.x - x);
+        const height = Math.abs(transformedEndPos.y - y);
         previewShape.setAttr("width", width);
         previewShape.setAttr("height", height);
         layer.batchDraw();
@@ -520,37 +534,7 @@ function activateRect(stage: Stage, layer: Layer) {
     stage.on('mouseup touchend', (e) => {
         if (!isPaint) return;
         isPaint = false;
-        previewShape.destroy();
-        endPos = stage.getPointerPosition();
-        if (!startPos) return
-        if (!endPos) return
-        if (startPos.x > endPos.x) {
-            let temp = startPos.x;
-            startPos.x = endPos.x;
-            endPos.x = temp;
-        }
-        if (startPos.y > endPos.y) {
-            let temp = startPos.y;
-            startPos.y = endPos.y;
-            endPos.y = temp;
-        }
-
-        const { x, y } = startPos;
-        const width = Math.abs(endPos.x - x);
-        const height = Math.abs(endPos.y - y);
-        const rect = new Rect({
-            name: 'shape',
-            x,
-            y,
-            width,
-            height,
-            cornerRadius: 5,
-            fill: "transparent",
-            stroke: get(selectedColor),
-            strokeWidth: STROKE_WIDTH,
-        });
-        layer.add(rect);
-        selectNodes(layer, [rect])
+        selectNodes(layer, [previewShape])
     })
 }
 
@@ -568,9 +552,11 @@ function activateCircle(stage: Stage, layer: Layer) {
         isPaint = true;
         startPos = stage.getPointerPosition();
         if (!startPos) return;
+        const transformedStartPos = transformPoints(stage, startPos)
         previewShape = new Ellipse({
-            x: startPos.x,
-            y: startPos.y,
+            name: 'shape',
+            x: transformedStartPos.x,
+            y: transformedStartPos.y,
             radiusX: 1, // Initial radius
             radiusY: 1,
             fill: "transparent",
@@ -585,29 +571,16 @@ function activateCircle(stage: Stage, layer: Layer) {
         endPos = stage.getPointerPosition();
         if (!startPos) return
         if (!endPos) return
-        previewShape.radiusX(Math.abs(startPos.x - endPos.x));
-        previewShape.radiusY(Math.abs(startPos.y - endPos.y));
+        const transformedStartPos = transformPoints(stage, startPos)
+        const transformedEndPos = transformPoints(stage, endPos)
+        previewShape.radiusX(Math.abs(transformedStartPos.x - transformedEndPos.x));
+        previewShape.radiusY(Math.abs(transformedStartPos.y - transformedEndPos.y));
         layer.batchDraw(); // Refresh the layer to see the changes
     })
     stage.on('mouseup touchend', (e) => {
         if (!isPaint) return;
         isPaint = false
-        endPos = stage.getPointerPosition();
-        previewShape.destroy();
-        if (!startPos) return
-        if (!endPos) return
-        const oval = new Ellipse({
-            name: 'shape',
-            x: startPos.x,
-            y: startPos.y,
-            radiusX: Math.abs(startPos.x - endPos.x),
-            radiusY: Math.abs(startPos.y - endPos.y),
-            fill: "transparent",
-            stroke: get(selectedColor),
-            strokeWidth: STROKE_WIDTH,
-        });
-        layer.add(oval);
-        selectNodes(layer, [oval])
+        selectNodes(layer, [previewShape])
     })
 }
 
@@ -625,9 +598,11 @@ function activateStar(stage: Stage, layer: Layer) {
         isPaint = true;
         startPos = stage.getPointerPosition();
         if (!startPos) return;
+        const transformedStartPos = transformPoints(stage, startPos)
         previewShape = new Star({
-            x: startPos.x,
-            y: startPos.y,
+            name: 'shape',
+            x: transformedStartPos.x,
+            y: transformedStartPos.y,
             numPoints: 5,
             innerRadius: 1,
             outerRadius: 2,
@@ -643,9 +618,11 @@ function activateStar(stage: Stage, layer: Layer) {
         endPos = stage.getPointerPosition();
         if (!startPos) return
         if (!endPos) return
+        const transformedStartPos = transformPoints(stage, startPos)
+        const transformedEndPos = transformPoints(stage, endPos)
         const outerRadius = Math.sqrt(
-            Math.pow(endPos.x - startPos.x, 2) +
-            Math.pow(endPos.y - startPos.y, 2)
+            Math.pow(transformedEndPos.x - transformedStartPos.x, 2) +
+            Math.pow(transformedEndPos.y - transformedStartPos.y, 2)
         );
         const innerRadius = outerRadius * 0.5;
         previewShape.outerRadius(outerRadius);
@@ -655,28 +632,7 @@ function activateStar(stage: Stage, layer: Layer) {
     stage.on('mouseup touchend', (e) => {
         if (!isPaint) return;
         isPaint = false
-        endPos = stage.getPointerPosition();
-        previewShape.destroy();
-        if (!startPos) return
-        if (!endPos) return
-        const outerRadius = Math.sqrt(
-            Math.pow(endPos.x - startPos.x, 2) +
-            Math.pow(endPos.y - startPos.y, 2)
-        );
-        const innerRadius = outerRadius * 0.5;
-        const star = new Star({
-            name: 'shape',
-            x: startPos.x,
-            y: startPos.y,
-            numPoints: 5,
-            innerRadius,
-            outerRadius,
-            fill: "transparent",
-            stroke: get(selectedColor),
-            strokeWidth: STROKE_WIDTH,
-        });
-        layer.add(star);
-        selectNodes(layer, [star])
+        selectNodes(layer, [previewShape])
     })
 }
 
@@ -694,9 +650,11 @@ function activatePolygon(stage: Stage, layer: Layer, sides: number) {
         isPaint = true;
         startPos = stage.getPointerPosition();
         if (!startPos) return;
+        const transformedStartPos = transformPoints(stage, startPos)
         previewShape = new RegularPolygon({
-            x: startPos.x,
-            y: startPos.y,
+            name: 'shape',
+            x: transformedStartPos.x,
+            y: transformedStartPos.y,
             sides,
             radius: 1, // Initial radius
             fill: "transparent",
@@ -711,28 +669,15 @@ function activatePolygon(stage: Stage, layer: Layer, sides: number) {
         endPos = stage.getPointerPosition();
         if (!startPos) return
         if (!endPos) return
-        previewShape.radius(Math.abs(startPos.x - endPos.x));
+        const transformedStartPos = transformPoints(stage, startPos)
+        const transformedEndPos = transformPoints(stage, endPos)
+        previewShape.radius(Math.abs(transformedStartPos.x - transformedEndPos.x));
         layer.batchDraw(); // Refresh the layer to see the changes
     })
     stage.on('mouseup touchend', (e) => {
         if (!isPaint) return;
         isPaint = false
-        endPos = stage.getPointerPosition();
-        previewShape.destroy();
-        if (!startPos) return
-        if (!endPos) return
-        const polygon = new RegularPolygon({
-            name: 'shape',
-            x: startPos.x,
-            y: startPos.y,
-            sides,
-            radius: Math.abs(startPos.x - endPos.x),
-            fill: "transparent",
-            stroke: get(selectedColor),
-            strokeWidth: STROKE_WIDTH,
-        });
-        layer.add(polygon);
-        selectNodes(layer, [polygon])
+        selectNodes(layer, [previewShape])
     })
 }
 
@@ -751,9 +696,11 @@ function activateHeart(stage: Stage, layer: Layer) {
         isPaint = true;
         startPos = stage.getPointerPosition();
         if (!startPos) return;
+        const transformedStartPos = transformPoints(stage, startPos)
         previewShape = new Shape({
-            x: startPos.x,
-            y: startPos.y,
+            name: 'shape',
+            x: transformedStartPos.x,
+            y: transformedStartPos.y,
             width: 0,
             height: 0,
             fill: "transparent",
@@ -793,20 +740,22 @@ function activateHeart(stage: Stage, layer: Layer) {
         endPos = stage.getPointerPosition();
         if (!startPos) return
         if (!endPos) return
-        if (startPos.x > endPos.x) {
-            let temp = startPos.x;
-            startPos.x = endPos.x;
-            endPos.x = temp;
+        const transformedStartPos = transformPoints(stage, startPos)
+        const transformedEndPos = transformPoints(stage, endPos)
+        if (transformedStartPos.x > transformedEndPos.x) {
+            let temp = transformedStartPos.x;
+            transformedStartPos.x = transformedEndPos.x;
+            transformedEndPos.x = temp;
         }
-        if (startPos.y > endPos.y) {
-            let temp = startPos.y;
-            startPos.y = endPos.y;
-            endPos.y = temp;
+        if (transformedStartPos.y > transformedEndPos.y) {
+            let temp = transformedStartPos.y;
+            transformedStartPos.y = transformedEndPos.y;
+            transformedEndPos.y = temp;
         }
 
-        const { x, y } = startPos;
-        const width = Math.abs(endPos.x - x);
-        const height = Math.abs(endPos.y - y);
+        const { x, y } = transformedStartPos;
+        const width = Math.abs(transformedEndPos.x - x);
+        const height = Math.abs(transformedEndPos.y - y);
         previewShape.setAttr("width", width);
         previewShape.setAttr("height", height);
         layer.batchDraw();
@@ -814,66 +763,193 @@ function activateHeart(stage: Stage, layer: Layer) {
     stage.on('mouseup touchend', (e) => {
         if (!isPaint) return;
         isPaint = false;
-        previewShape.destroy();
-        endPos = stage.getPointerPosition();
-        if (!startPos) return
-        if (!endPos) return
-        if (startPos.x > endPos.x) {
-            let temp = startPos.x;
-            startPos.x = endPos.x;
-            endPos.x = temp;
-        }
-        if (startPos.y > endPos.y) {
-            let temp = startPos.y;
-            startPos.y = endPos.y;
-            endPos.y = temp;
-        }
+        selectNodes(layer, [previewShape])
+    })
+}
 
-        const { x, y } = startPos;
-        const width = Math.abs(endPos.x - x);
-        const height = Math.abs(endPos.y - y);
-
-        const heart = new Shape({
-            name: 'shape',
-            x,
-            y,
-            width,
-            height,
-            cornerRadius: 5,
-            fill: "transparent",
+function activateBoxWithX(stage: Stage, layer: Layer) {
+    let isPaint = false;
+    document.body.style.cursor = "crosshair";
+    let startX: number, startY: number, group: Group, rect: Rect, line1: Line, line2: Line;
+    stage.on('mousedown touchstart', (e) => {
+        if (e.target !== stage) {
+            e.cancelBubble = true;
+            return;
+        }
+        isPaint = true;
+        const pos = stage.getPointerPosition();
+        if (!pos) return
+        const transformedPos = transformPoints(stage, pos)
+        startX = transformedPos.x;
+        startY = transformedPos.y;
+        group = new Group({
+            name: "shape"
+        })
+        rect = new Rect({
+            x: startX,
+            y: startY,
+            width: 0,
+            height: 0,
             stroke: get(selectedColor),
-            strokeWidth: STROKE_WIDTH,
-            sceneFunc: function (context, shape) {
-                const width = shape.width();
-                const height = shape.height();
-
-                context.beginPath();
-                context.moveTo(width / 2, height / 4);
-
-                // Left curve
-                context.bezierCurveTo(
-                    width / 6, 0,  // Control point 1
-                    0, height / 2,  // Control point 2
-                    width / 2, height  // End point
-                );
-
-                // Right curve
-                context.bezierCurveTo(
-                    width, height / 2,  // Control point 1
-                    width * 5 / 6, 0,  // Control point 2
-                    width / 2, height / 4  // End point
-                );
-
-                context.closePath();
-
-                // Konva specific method to apply fill and stroke
-                context.fillStrokeShape(shape);
-            },
+            strokeWidth: STROKE_WIDTH
         });
 
-        layer.add(heart);
+        line1 = new Line({
+            points: [startX, startY, startX, startY],
+            stroke: get(selectedColor),
+            strokeWidth: STROKE_WIDTH
+        });
 
-        selectNodes(layer, [heart])
+        line2 = new Line({
+            points: [startX, startY, startX, startY],
+            stroke: get(selectedColor),
+            strokeWidth: STROKE_WIDTH
+        });
+
+        group.add(rect, line1, line2);
+        layer.add(group);
+    });
+    stage.on('mousemove touchmove', (e) => {
+        if (!isPaint) return;
+        const pos = stage.getPointerPosition();
+        if (!pos) return
+        const transformedPos = transformPoints(stage, pos)
+        const width = transformedPos.x - startX;
+        const height = transformedPos.y - startY;
+
+        rect.width(width);
+        rect.height(height);
+
+        line1.points([startX, startY, startX + width, startY + height]);
+        line2.points([startX + width, startY, startX, startY + height]);
+
+        layer.batchDraw();
+    })
+    stage.on('mouseup touchend', (e) => {
+        if (!isPaint) return;
+        isPaint = false;
+        selectNodes(layer, [group])
+    })
+}
+
+function activateBoxWithCheck(stage: Stage, layer: Layer) {
+    let isPaint = false;
+    document.body.style.cursor = "crosshair";
+    let startX: number, startY: number, group: Group, rect: Rect, check: Line;
+    stage.on('mousedown touchstart', (e) => {
+        if (e.target !== stage) {
+            e.cancelBubble = true;
+            return;
+        }
+        isPaint = true;
+        const pos = stage.getPointerPosition();
+        if (!pos) return
+        const transformedPos = transformPoints(stage, pos)
+        startX = transformedPos.x;
+        startY = transformedPos.y;
+        group = new Group({
+            name: "shape"
+        })
+        rect = new Rect({
+            x: startX,
+            y: startY,
+            width: 0,
+            height: 0,
+            stroke: get(selectedColor),
+            strokeWidth: STROKE_WIDTH
+        });
+
+        check = new Line({
+            points: [startX, startY, startX, startY],
+            stroke: get(selectedColor),
+            strokeWidth: STROKE_WIDTH
+        });
+
+        group.add(rect, check);
+        layer.add(group);
+    });
+    stage.on('mousemove touchmove', (e) => {
+        if (!isPaint) return;
+        const pos = stage.getPointerPosition();
+        if (!pos) return
+        const transformedPos = transformPoints(stage, pos)
+        const width = transformedPos.x - startX;
+        const height = transformedPos.y - startY;
+
+        rect.width(width);
+        rect.height(height);
+
+        const checkStartX = startX + width * 0.2;
+        const checkStartY = startY + height * 0.6;
+        const checkMidX = startX + width * 0.45;
+        const checkMidY = startY + height * 0.8;
+        const checkEndX = startX + width * 0.8;
+        const checkEndY = startY + height * 0.3;
+
+        check.points([checkStartX, checkStartY, checkMidX, checkMidY, checkEndX, checkEndY]);
+
+        layer.batchDraw();
+    })
+    stage.on('mouseup touchend', (e) => {
+        if (!isPaint) return;
+        isPaint = false;
+        selectNodes(layer, [group])
+    })
+}
+
+function activateFatArrow(stage: Stage, layer: Layer) {
+    let isPaint = false;
+    document.body.style.cursor = "crosshair";
+    let startX: number, startY: number, fatArrow: Line;
+    stage.on('mousedown touchstart', (e) => {
+        if (e.target !== stage) {
+            e.cancelBubble = true;
+            return;
+        }
+        isPaint = true;
+        const pos = stage.getPointerPosition();
+        if (!pos) return
+        const transformedPos = transformPoints(stage, pos)
+        startX = transformedPos.x;
+        startY = transformedPos.y;
+        fatArrow = new Line({
+            name: "shape",
+            points: [startX, startY, startX, startY],
+            stroke: get(selectedColor),
+            strokeWidth: STROKE_WIDTH,
+            closed: true,
+        });
+
+        layer.add(fatArrow);
+    });
+    stage.on('mousemove touchmove', (e) => {
+        if (!isPaint) return;
+        const pos = stage.getPointerPosition();
+        if (!pos) return
+        const transformedPos = transformPoints(stage, pos)
+        const width = transformedPos.x - startX;
+        const height = transformedPos.y - startY;
+
+        const arrowHeadHeight = height * 0.4;
+
+        const points = [
+            startX, startY + height,                                            // Bottom left
+            startX + width, startY + height,                                    // Bottom right
+            startX + width, startY + arrowHeadHeight,                           // Right vertical
+            startX + width + width * 0.4, startY + arrowHeadHeight,             // Slight right
+            startX + width / 2, startY,                          // Top point (arrowhead)
+            startX - width * 0.4, startY + arrowHeadHeight,                     // Left vertical
+            startX, startY + arrowHeadHeight                     // Left vertical
+        ];
+
+        fatArrow.points(points);
+
+        layer.batchDraw();
+    })
+    stage.on('mouseup touchend', (e) => {
+        if (!isPaint) return;
+        isPaint = false;
+        selectNodes(layer, [fatArrow])
     })
 }
 
@@ -908,4 +984,10 @@ function enableDraggable(layer: Layer, draggable: boolean) {
     children.forEach((child) => {
         child.draggable(draggable)
     })
+}
+
+function transformPoints(stage: Stage, pos: Vector2d) {
+    const transform = stage.getAbsoluteTransform().copy()
+    transform.invert()
+    return transform.point(pos)
 }
