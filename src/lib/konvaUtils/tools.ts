@@ -114,6 +114,19 @@ export const selectTool = (stage: Stage, layer: Layer, tool: Tool) => {
         }
         const shapes = layer.getChildren()
         shapes.forEach(shape => {
+            if (shape instanceof Shape) {
+                changeStrokeColor(shape)
+            }
+            if (shape instanceof Group) {
+                const subChildren = shape.getChildren()
+                subChildren.forEach(child => {
+                    if (child instanceof Shape) {
+                        changeStrokeColor(child)
+                    }
+                })
+            }
+        })
+        function changeStrokeColor(shape: Shape) {
             if (shape instanceof Shape && val === "dark" && shape.stroke() === "#000000") {
                 shape.stroke("#ffffff")
                 return;
@@ -122,7 +135,7 @@ export const selectTool = (stage: Stage, layer: Layer, tool: Tool) => {
                 shape.stroke("#000000")
                 return;
             }
-        })
+        }
     })
     switch (tool) {
         case "select":
