@@ -45,6 +45,6 @@
 {#if stage && layer}
   <StyleToolbar />
   <Toolbar {stage} {layer} />
+  <Menu {stage} />
 {/if}
 <HelpModal />
-<Menu />
