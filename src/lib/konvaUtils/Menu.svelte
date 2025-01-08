@@ -19,12 +19,17 @@
     toggleDropdown();
   };
   const exportPNG = () => {
-    var dataURL = stage.toDataURL({ pixelRatio: 3 });
-    downloadURI(dataURL, "stage.png");
+    const dataURL = stage.toDataURL({ pixelRatio: 3 });
+    downloadURI(dataURL, `SvelteDraw_${Date.now()}.png`);
+  };
+  const exportJSON = () => {
+    const json = stage.toJSON();
+    const dataURL = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(json));
+    downloadURI(dataURL, `SvelteDraw_${Date.now()}.json`);
   };
 
   function downloadURI(uri: string, name: string) {
-    var link = document.createElement("a");
+    const link = document.createElement("a");
     link.download = name;
     link.href = uri;
     document.body.appendChild(link);
@@ -45,6 +50,7 @@
       <div class="flex flex-col">
         <button class="rounded p-2 hover:bg-gray-200 dark:hover:bg-slate-700 text-left dark:text-white" onclick={toggleTheme}>Toggle Theme</button>
         <button class="rounded p-2 hover:bg-gray-200 dark:hover:bg-slate-700 text-left dark:text-white" onclick={exportPNG}>Export PNG</button>
+        <button class="rounded p-2 hover:bg-gray-200 dark:hover:bg-slate-700 text-left dark:text-white" onclick={exportJSON}>Export JSON</button>
       </div>
     </div>
   </div>
