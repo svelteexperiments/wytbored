@@ -26,6 +26,9 @@ export const initKonva = (containerDiv: HTMLDivElement, stageWidth: number, stag
     tr.on('dragstart', (evt) => {
         evt.cancelBubble = true;
     });
+    tr.on('transformend', (evt) => {
+        stage.fire("object:modified", { target: evt.target })
+    });
 
     layer.add(tr)
     stage.add(layer);
@@ -39,7 +42,10 @@ export const initKonva = (containerDiv: HTMLDivElement, stageWidth: number, stag
         }
         if (event.key === "Delete") {
             if (!tr) return;
-            tr.getNodes().forEach(node => node.destroy())
+            tr.getNodes().forEach(node => {
+                node.destroy()
+                stage.fire('object:removed', { target: node })
+            })
             tr.nodes([])
         }
         if (event.ctrlKey && event.key === 'd') {
@@ -52,6 +58,7 @@ export const initKonva = (containerDiv: HTMLDivElement, stageWidth: number, stag
                         y: node.y() + 20,
                     });
                     layer.add(clonedNode)
+                    stage.fire('object:added', { target: clonedNode })
                     tr.nodes([clonedNode])
                 }
             })
@@ -82,6 +89,7 @@ export const initKonva = (containerDiv: HTMLDivElement, stageWidth: number, stag
                         node.move({ x: moveStep, y: 0 });
                         break;
                 }
+                stage.fire('object:modified', { target: node })
             });
         }
     });
@@ -90,7 +98,6 @@ export const initKonva = (containerDiv: HTMLDivElement, stageWidth: number, stag
 }
 
 export const registerDefaultEvents = (stage: Stage) => {
-    let scale = 1
     // Scale limits
     const MIN_SCALE = 0.5; // 50%
     const MAX_SCALE = 4; // 400%
@@ -109,7 +116,6 @@ export const registerDefaultEvents = (stage: Stage) => {
 
         let newScale = oldScale * (e.evt.deltaY > 0 ? 0.9 : 1.1);
         newScale = Math.max(MIN_SCALE, Math.min(newScale, MAX_SCALE));
-        scale = newScale;
 
         stage.scale({ x: newScale, y: newScale });
 
@@ -121,5 +127,8 @@ export const registerDefaultEvents = (stage: Stage) => {
         stage.position(newPos);
         stage.batchDraw();
     });
+    stage.on("dragend", (e) => {
+        stage.fire("object:modified", { target: e.target })
+    })
 }
 

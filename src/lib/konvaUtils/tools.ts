@@ -310,6 +310,7 @@ function activateFreeDrawing(stage: Stage, layer: Layer, mode: "brush" | "eraser
         isPaint = false;
         if (mode == "brush") {
             selectNodes(layer, [lastLine])
+            stage.fire('object:added', { target: lastLine })
         }
     });
 
@@ -354,6 +355,7 @@ function activateArrow(stage: Stage, layer: Layer) {
         if (!isPaint) return;
         isPaint = false;
         selectNodes(layer, [previewShape])
+        stage.fire('object:added', { target: previewShape })
     })
 }
 
@@ -396,6 +398,7 @@ function activateLine(stage: Stage, layer: Layer) {
         if (!isPaint) return;
         isPaint = false;
         selectNodes(layer, [previewShape])
+        stage.fire('object:added', { target: previewShape })
     })
 }
 
@@ -535,6 +538,7 @@ function activateText(stage: Stage, layer: Layer) {
             });
         });
         selectNodes(layer, [textNode])
+        stage.fire('object:added', { target: textNode })
         resetStage(stage, "select")
     })
 }
@@ -597,6 +601,7 @@ function activateRect(stage: Stage, layer: Layer) {
         if (!isPaint) return;
         isPaint = false;
         selectNodes(layer, [previewShape])
+        stage.fire('object:added', { target: previewShape })
     })
 }
 
@@ -644,6 +649,7 @@ function activateCircle(stage: Stage, layer: Layer) {
         if (!isPaint) return;
         isPaint = false
         selectNodes(layer, [previewShape])
+        stage.fire('object:added', { target: previewShape })
     })
 }
 
@@ -697,6 +703,7 @@ function activateStar(stage: Stage, layer: Layer) {
         if (!isPaint) return;
         isPaint = false
         selectNodes(layer, [previewShape])
+        stage.fire('object:added', { target: previewShape })
     })
 }
 
@@ -743,6 +750,7 @@ function activatePolygon(stage: Stage, layer: Layer, sides: number) {
         if (!isPaint) return;
         isPaint = false
         selectNodes(layer, [previewShape])
+        stage.fire('object:added', { target: previewShape })
     })
 }
 
@@ -830,6 +838,7 @@ function activateHeart(stage: Stage, layer: Layer) {
         if (!isPaint) return;
         isPaint = false;
         selectNodes(layer, [previewShape])
+        stage.fire('object:added', { target: previewShape })
     })
 }
 
@@ -898,6 +907,7 @@ function activateBoxWithX(stage: Stage, layer: Layer) {
         if (!isPaint) return;
         isPaint = false;
         selectNodes(layer, [group])
+        stage.fire('object:added', { target: group })
     })
 }
 
@@ -965,6 +975,7 @@ function activateBoxWithCheck(stage: Stage, layer: Layer) {
         if (!isPaint) return;
         isPaint = false;
         selectNodes(layer, [group])
+        stage.fire('object:added', { target: group })
     })
 }
 
@@ -1022,6 +1033,7 @@ function activateFatArrow(stage: Stage, layer: Layer) {
         if (!isPaint) return;
         isPaint = false;
         selectNodes(layer, [fatArrow])
+        stage.fire('object:added', { target: fatArrow })
     })
 }
 
