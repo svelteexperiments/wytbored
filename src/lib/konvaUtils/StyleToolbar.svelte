@@ -74,13 +74,13 @@
   <input type="range" min="0.2" max="1" step="0.1" bind:value={$opacity} />
 
   <div class="grid grid-cols-3 place-items-center mb-2">
-    <button class="border-2 border-black dark:border-white p-2 w-6 h-6 hover:bg-gray-100 {$strokeStyle === 'solid' ? 'bg-gray-200' : ''} rounded-full" onclick={() => ($strokeStyle = "solid")}>
+    <button class="border-2 border-black dark:border-white p-2 w-6 h-6 hover:bg-gray-100 dark:hover:bg-slate-700 {$strokeStyle === 'solid' ? 'bg-gray-200 dark:bg-slate-600' : ''} rounded-full" onclick={() => ($strokeStyle = "solid")}>
       <!-- Nothing -->
     </button>
-    <button class="border-2 border-dashed border-black dark:border-white p-2 w-6 h-6 hover:bg-gray-100 {$strokeStyle === 'dash' ? 'bg-gray-200' : ''} rounded-full" onclick={() => ($strokeStyle = "dash")}>
+    <button class="border-2 border-dashed border-black dark:border-white p-2 w-6 h-6 hover:bg-gray-100 dark:hover:bg-slate-700 {$strokeStyle === 'dash' ? 'bg-gray-200 dark:bg-slate-600' : ''} rounded-full" onclick={() => ($strokeStyle = "dash")}>
       <!-- Nothing -->
     </button>
-    <button class="border-2 border-dotted border-black dark:border-white p-2 w-6 h-6 hover:bg-gray-100 {$strokeStyle === 'dot' ? 'bg-gray-200' : ''} rounded-full" onclick={() => ($strokeStyle = "dot")}>
+    <button class="border-2 border-dotted border-black dark:border-white p-2 w-6 h-6 hover:bg-gray-100 dark:hover:bg-slate-700 {$strokeStyle === 'dot' ? 'bg-gray-200 dark:bg-slate-600' : ''} rounded-full" onclick={() => ($strokeStyle = "dot")}>
       <!-- Nothing -->
     </button>
   </div>
