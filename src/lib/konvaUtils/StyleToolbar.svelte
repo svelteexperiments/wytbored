@@ -1,11 +1,8 @@
 <script lang="ts">
+  import { theme } from "$lib/theme.js";
   import { opacity, selectedColor, strokeStyle } from "./tools.js";
 
   const colors = [
-    {
-      twclass: "bg-black",
-      hex: "#000000",
-    },
     {
       twclass: "bg-slate-400",
       hex: "#94a3b8",
@@ -53,26 +50,37 @@
   ];
 </script>
 
-<div class="fixed top-0 right-0 flex flex-col gap-4 bg-white border border-gray-300 shadow-lg rounded-lg p-2 m-2">
+<div class="fixed top-0 right-0 flex flex-col gap-4 bg-white dark:bg-slate-800 border border-gray-300 shadow-lg rounded-lg p-2 m-2">
   <div class="grid grid-cols-4 gap-4">
+    {#if $theme === "light"}
+      <!-- svelte-ignore a11y_consider_explicit_label -->
+      <button class="relative p-2 w-8 h-8 hover:bg-gray-100 dark:hover:bg-slate-700 {$selectedColor === '#000000' ? 'bg-gray-200 dark:bg-slate-600' : ''} rounded" onclick={() => ($selectedColor = "#000000")}>
+        <span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-black rounded-full"></span>
+      </button>
+    {:else}
+      <!-- svelte-ignore a11y_consider_explicit_label -->
+      <button class="relative p-2 w-8 h-8 hover:bg-gray-100 dark:hover:bg-slate-700 {$selectedColor === '#ffffff' ? 'bg-gray-200 dark:bg-slate-600' : ''} rounded" onclick={() => ($selectedColor = "#ffffff")}>
+        <span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full"></span>
+      </button>
+    {/if}
     {#each colors as { twclass, hex }}
       <!-- svelte-ignore a11y_consider_explicit_label -->
-      <button class="relative p-2 w-8 h-8 hover:bg-gray-100 {$selectedColor === hex ? 'bg-gray-200' : ''} rounded" onclick={() => ($selectedColor = hex)}>
+      <button class="relative p-2 w-8 h-8 hover:bg-gray-100 dark:hover:bg-slate-700 {$selectedColor === hex ? 'bg-gray-200 dark:bg-slate-600' : ''} rounded" onclick={() => ($selectedColor = hex)}>
         <span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 {twclass} rounded-full"></span>
       </button>
     {/each}
   </div>
-  <hr />
+
   <input type="range" min="0.2" max="1" step="0.1" bind:value={$opacity} />
-  <hr />
+
   <div class="grid grid-cols-3 place-items-center mb-2">
-    <button class="border-2 border-black p-2 w-6 h-6 hover:bg-gray-100 {$strokeStyle === 'solid' ? 'bg-gray-200' : ''} rounded-full" onclick={() => ($strokeStyle = "solid")}>
+    <button class="border-2 border-black dark:border-white p-2 w-6 h-6 hover:bg-gray-100 {$strokeStyle === 'solid' ? 'bg-gray-200' : ''} rounded-full" onclick={() => ($strokeStyle = "solid")}>
       <!-- Nothing -->
     </button>
-    <button class="border-2 border-dashed border-black p-2 w-6 h-6 hover:bg-gray-100 {$strokeStyle === 'dash' ? 'bg-gray-200' : ''} rounded-full" onclick={() => ($strokeStyle = "dash")}>
+    <button class="border-2 border-dashed border-black dark:border-white p-2 w-6 h-6 hover:bg-gray-100 {$strokeStyle === 'dash' ? 'bg-gray-200' : ''} rounded-full" onclick={() => ($strokeStyle = "dash")}>
       <!-- Nothing -->
     </button>
-    <button class="border-2 border-dotted border-black p-2 w-6 h-6 hover:bg-gray-100 {$strokeStyle === 'dot' ? 'bg-gray-200' : ''} rounded-full" onclick={() => ($strokeStyle = "dot")}>
+    <button class="border-2 border-dotted border-black dark:border-white p-2 w-6 h-6 hover:bg-gray-100 {$strokeStyle === 'dot' ? 'bg-gray-200' : ''} rounded-full" onclick={() => ($strokeStyle = "dot")}>
       <!-- Nothing -->
     </button>
   </div>

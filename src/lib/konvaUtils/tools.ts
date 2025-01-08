@@ -15,6 +15,7 @@ import type { Node, NodeConfig } from "konva/lib/Node.js";
 import { Util } from "konva/lib/Util.js";
 import { registerDefaultEvents } from "./utils.js";
 import { Group } from "konva/lib/Group.js";
+import { theme } from "$lib/theme.js";
 
 const STROKE_WIDTH = 5;
 
@@ -39,13 +40,14 @@ type Tool =
     | "fatArrow";
 
 export let selectedTool = writable<Tool>("select");
-export let selectedColor = writable<string>("#000000");
+export let selectedColor = writable<string>(get(theme) === "light" ? "#000000" : "#ffffff");
 export let opacity = writable<number>(1)
 export let strokeStyle = writable<"solid" | "dash" | "dot">("solid")
 
 let colorSubscription: Unsubscriber;
 let opacitySubscription: Unsubscriber;
 let strokeStyleSubscription: Unsubscriber;
+let themeSubscription: Unsubscriber;
 
 const resetStage = (stage: Stage, selectTool: "select" | null = null) => {
     stage.off();
@@ -105,6 +107,23 @@ export const selectTool = (stage: Stage, layer: Layer, tool: Tool) => {
         });
         layer.batchDraw();
     });
+    if (themeSubscription) themeSubscription();
+    themeSubscription = theme.subscribe((val) => {
+        if (get(selectedColor) === "#000000" || get(selectedColor) === "#ffffff") {
+            selectedColor.set(val === "light" ? "#000000" : "#ffffff")
+        }
+        const shapes = layer.getChildren()
+        shapes.forEach(shape => {
+            if (shape instanceof Shape && val === "dark" && shape.stroke() === "#000000") {
+                shape.stroke("#ffffff")
+                return;
+            }
+            if (shape instanceof Shape && val === "light" && shape.stroke() === "#ffffff") {
+                shape.stroke("#000000")
+                return;
+            }
+        })
+    })
     switch (tool) {
         case "select":
             activateSelect(stage, layer)

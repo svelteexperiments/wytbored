@@ -5,17 +5,20 @@
   import StyleToolbar from "./StyleToolbar.svelte";
   import Toolbar from "./Toolbar.svelte";
   import { initKonva } from "./utils.js";
-  import type { Transformer } from "konva/lib/shapes/Transformer.js";
   import HelpModal from "./HelpModal.svelte";
+  import { theme } from "$lib/theme.js";
+  import Menu from "./Menu.svelte";
 
   let containerDiv: HTMLDivElement;
   let stageWidth = window.innerWidth;
   let stageHeight = window.innerHeight;
   let stage: Stage | null = $state(null);
   let layer: Layer | null = $state(null);
-  let tr: Transformer | null = $state(null);
 
   $effect(() => {
+    theme.set("light");
+    const storedTheme = localStorage.getItem("theme") || "light";
+    document.documentElement.classList.toggle("dark", storedTheme === "dark");
     // Initialize stage
     ({ stage, layer } = initKonva(containerDiv, stageWidth, stageHeight));
 
@@ -38,9 +41,10 @@
   });
 </script>
 
-<div bind:this={containerDiv} class="w-full h-full touch-none"></div>
+<div bind:this={containerDiv} class="w-full h-full touch-none dark:bg-slate-900"></div>
 {#if stage && layer}
   <StyleToolbar />
   <Toolbar {stage} {layer} />
 {/if}
 <HelpModal />
+<Menu />

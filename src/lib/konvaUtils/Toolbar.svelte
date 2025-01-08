@@ -39,34 +39,34 @@
   };
 </script>
 
-<div class="fixed bottom-5 left-1/2 -translate-x-1/2 flex gap-4 bg-white border border-gray-300 shadow-lg rounded-lg px-4 py-2">
-  <button class="p-2 rounded {$selectedTool === 'select' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'}" onclick={() => selectTool(stage, layer, "select")}>
+<div class="fixed bottom-5 left-1/2 -translate-x-1/2 flex gap-4 bg-white dark:bg-slate-800 border border-gray-300 shadow-lg rounded-lg px-4 py-2">
+  <button class="p-2 rounded {$selectedTool === 'select' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'}" onclick={() => selectTool(stage, layer, "select")}>
     <MousePointer strokeWidth={1.5} size={20} />
   </button>
-  <button class="p-2 rounded {$selectedTool === 'hand' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'}" onclick={() => selectTool(stage, layer, "hand")}>
+  <button class="p-2 rounded {$selectedTool === 'hand' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'}" onclick={() => selectTool(stage, layer, "hand")}>
     <Hand strokeWidth={1.5} size={20} />
   </button>
-  <button class="p-2 rounded {$selectedTool === 'pen' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'}" onclick={() => selectTool(stage, layer, "pen")}>
+  <button class="p-2 rounded {$selectedTool === 'pen' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'}" onclick={() => selectTool(stage, layer, "pen")}>
     <Pencil strokeWidth={1.5} size={20} />
   </button>
-  <button class="p-2 {$selectedTool === 'eraser' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'} rounded" onclick={() => selectTool(stage, layer, "eraser")}>
+  <button class="p-2 {$selectedTool === 'eraser' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded" onclick={() => selectTool(stage, layer, "eraser")}>
     <Eraser strokeWidth={1.5} size={20} />
   </button>
-  <button class="p-2 {$selectedTool === 'arrow' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'} rounded" onclick={() => selectTool(stage, layer, "arrow")}>
+  <button class="p-2 {$selectedTool === 'arrow' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded" onclick={() => selectTool(stage, layer, "arrow")}>
     <MoveUpRight strokeWidth={1.5} size={20} />
   </button>
-  <button class="p-2 {$selectedTool === 'text' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'} rounded" onclick={() => selectTool(stage, layer, "text")}>
+  <button class="p-2 {$selectedTool === 'text' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded" onclick={() => selectTool(stage, layer, "text")}>
     <Type strokeWidth={1.5} size={20} />
   </button>
-  <button class="p-2 {$selectedTool === 'image' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'} rounded">
+  <button class="p-2 {$selectedTool === 'image' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded">
     <Image strokeWidth={1.5} size={20} />
   </button>
-  <button class="p-2 hover:bg-gray-100 rounded" onclick={() => layer.destroyChildren()}>
+  <button class="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white rounded" onclick={() => layer.destroyChildren()}>
     <PaintRoller strokeWidth={1.5} size={20} />
   </button>
 
   <div class="relative">
-    <button class="p-2 hover:bg-gray-100 rounded" onclick={toggleDropdown}>
+    <button class="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white rounded" onclick={toggleDropdown}>
       {#if !isDropDownOpen}
         <ChevronUp strokeWidth={1.5} size={20} />
       {:else}
@@ -75,10 +75,10 @@
     </button>
 
     <!-- Dropdown Menu -->
-    <div bind:this={dropDownMenu} class="hidden w-48 absolute bottom-full mb-2 left-0 bg-white border border-gray-300 shadow-lg rounded-lg p-2">
+    <div bind:this={dropDownMenu} class="hidden w-48 absolute bottom-full mb-2 left-0 bg-white dark:bg-slate-800 border border-gray-300 shadow-lg rounded-lg p-2">
       <div class="grid grid-cols-4 gap-2">
         <button
-          class="p-2 {$selectedTool === 'box' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'} rounded"
+          class="p-2 {$selectedTool === 'box' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
           onclick={() => {
             selectTool(stage, layer, "box");
             toggleDropdown();
@@ -87,7 +87,7 @@
           <Square strokeWidth={1.5} size={20} />
         </button>
         <button
-          class="p-2 {$selectedTool === 'circle' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'} rounded"
+          class="p-2 {$selectedTool === 'circle' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
           onclick={() => {
             selectTool(stage, layer, "circle");
             toggleDropdown();
@@ -96,7 +96,7 @@
           <Circle strokeWidth={1.5} size={20} />
         </button>
         <button
-          class="p-2 {$selectedTool === 'triangle' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'} rounded"
+          class="p-2 {$selectedTool === 'triangle' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
           onclick={() => {
             selectTool(stage, layer, "triangle");
             toggleDropdown();
@@ -105,7 +105,7 @@
           <Triangle strokeWidth={1.5} size={20} />
         </button>
         <button
-          class="p-2 {$selectedTool === 'diamond' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'} rounded"
+          class="p-2 {$selectedTool === 'diamond' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
           onclick={() => {
             selectTool(stage, layer, "diamond");
             toggleDropdown();
@@ -114,7 +114,7 @@
           <Diamond strokeWidth={1.5} size={20} />
         </button>
         <button
-          class="p-2 {$selectedTool === 'hexagon' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'} rounded"
+          class="p-2 {$selectedTool === 'hexagon' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
           onclick={() => {
             selectTool(stage, layer, "hexagon");
             toggleDropdown();
@@ -123,7 +123,7 @@
           <Hexagon strokeWidth={1.5} size={20} />
         </button>
         <button
-          class="p-2 {$selectedTool === 'star' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'} rounded"
+          class="p-2 {$selectedTool === 'star' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
           onclick={() => {
             selectTool(stage, layer, "star");
             toggleDropdown();
@@ -132,7 +132,7 @@
           <Star strokeWidth={1.5} size={20} />
         </button>
         <button
-          class="p-2 {$selectedTool === 'heart' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'} rounded"
+          class="p-2 {$selectedTool === 'heart' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
           onclick={() => {
             selectTool(stage, layer, "heart");
             toggleDropdown();
@@ -141,7 +141,7 @@
           <Heart strokeWidth={1.5} size={20} />
         </button>
         <button
-          class="p-2 {$selectedTool === 'boxX' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'} rounded"
+          class="p-2 {$selectedTool === 'boxX' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
           onclick={() => {
             selectTool(stage, layer, "boxX");
             toggleDropdown();
@@ -150,7 +150,7 @@
           <SquareX strokeWidth={1.5} size={20} />
         </button>
         <button
-          class="p-2 {$selectedTool === 'boxCheck' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'} rounded"
+          class="p-2 {$selectedTool === 'boxCheck' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
           onclick={() => {
             selectTool(stage, layer, "boxCheck");
             toggleDropdown();
@@ -159,7 +159,7 @@
           <SquareCheck strokeWidth={1.5} size={20} />
         </button>
         <button
-          class="p-2 {$selectedTool === 'fatArrow' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'} rounded"
+          class="p-2 {$selectedTool === 'fatArrow' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
           onclick={() => {
             selectTool(stage, layer, "fatArrow");
             toggleDropdown();
@@ -168,7 +168,7 @@
           <ArrowBigUp strokeWidth={1} size={24} />
         </button>
         <button
-          class="p-2 {$selectedTool === 'line' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'} rounded"
+          class="p-2 {$selectedTool === 'line' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
           onclick={() => {
             selectTool(stage, layer, "line");
             toggleDropdown();
