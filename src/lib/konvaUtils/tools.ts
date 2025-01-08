@@ -135,7 +135,8 @@ export const selectTool = (stage: Stage, layer: Layer, tool: Tool) => {
             activateFreeDrawing(stage, layer, "brush")
             break;
         case "eraser":
-            activateFreeDrawing(stage, layer, "eraser")
+            // activateFreeDrawing(stage, layer, "eraser")
+            activateEraser(stage, layer)
             break;
         case "arrow":
             activateArrow(stage, layer)
@@ -1089,4 +1090,79 @@ function getStrokeStyle() {
             break;
     }
     return dash
+}
+
+function activateEraser(stage: Stage, layer: Layer) {
+    deselectEverything(layer)
+    let isDrawing = false;
+    let drawingPoints: number[] = [];
+    let eraserLine: Line | null = null;
+    let highlightedObjects = new Set<Node>();
+
+    stage.on('mousedown', () => {
+        isDrawing = true;
+        drawingPoints = [];
+        eraserLine = new Line({
+            stroke: 'rgba(255, 0, 0, 1)',
+            strokeWidth: 1,
+            lineCap: 'round',
+            lineJoin: 'round',
+            points: [],
+            draggable: false,
+        });
+        layer.add(eraserLine);
+    });
+
+    stage.on('mousemove', (event) => {
+        if (!isDrawing || !eraserLine) return;
+
+        const pos = stage.getPointerPosition();
+        if (pos) {
+            drawingPoints.push(pos.x, pos.y);
+            eraserLine.points(drawingPoints);
+            layer.batchDraw();
+
+            // Highlight objects that intersect with the eraser line
+            layer.getChildren().forEach(obj => {
+                if (obj === eraserLine) return;
+                if (obj instanceof Shape) {
+                    if (Util.haveIntersection(eraserLine!.getClientRect(), obj.getClientRect()) && !highlightedObjects.has(obj)) {
+                        obj.opacity(0.3);
+                        highlightedObjects.add(obj);
+                    } else if (!Util.haveIntersection(eraserLine!.getClientRect(), obj.getClientRect()) && highlightedObjects.has(obj)) {
+                        obj.opacity(1);
+                        highlightedObjects.delete(obj);
+                    }
+                }
+            });
+        }
+    });
+
+    stage.on('mouseup', () => {
+        isDrawing = false;
+
+        // Remove objects that intersect with the final eraser path
+        if (eraserLine) {
+            layer.getChildren().forEach(obj => {
+                if (obj === eraserLine) return;
+                if (obj instanceof Shape) {
+                    if (Util.haveIntersection(eraserLine!.getClientRect(), obj.getClientRect())) {
+                        obj.destroy();
+                    }
+                }
+            });
+            fadeOutTrail(eraserLine, layer);
+        }
+    });
+}
+
+function fadeOutTrail(line: Line, layer: Layer, duration = 500) {
+    line.to({
+        opacity: 0,
+        duration: duration / 1000,
+        onFinish: () => {
+            line.destroy();
+            layer.batchDraw();
+        }
+    });
 }
