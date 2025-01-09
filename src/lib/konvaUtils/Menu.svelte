@@ -21,13 +21,18 @@
   const exportPNG = () => {
     const dataURL = stage.toDataURL({ pixelRatio: 3 });
     downloadURI(dataURL, `SvelteDraw_${Date.now()}.png`);
+    toggleDropdown();
   };
   const exportJSON = () => {
     const json = stage.toJSON();
     const dataURL = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(json));
     downloadURI(dataURL, `SvelteDraw_${Date.now()}.json`);
+    toggleDropdown();
   };
-
+  const importJSON = () => {
+    // Implement Pending
+    toggleDropdown();
+  };
   function downloadURI(uri: string, name: string) {
     const link = document.createElement("a");
     link.download = name;
@@ -51,6 +56,7 @@
         <button class="rounded p-2 hover:bg-gray-200 dark:hover:bg-slate-700 text-left dark:text-white" onclick={toggleTheme}>Toggle Theme</button>
         <button class="rounded p-2 hover:bg-gray-200 dark:hover:bg-slate-700 text-left dark:text-white" onclick={exportPNG}>Export PNG</button>
         <button class="rounded p-2 hover:bg-gray-200 dark:hover:bg-slate-700 text-left dark:text-white" onclick={exportJSON}>Export JSON</button>
+        <button class="rounded p-2 hover:bg-gray-200 dark:hover:bg-slate-700 text-left dark:text-white" onclick={importJSON}>Import JSON</button>
       </div>
     </div>
   </div>
