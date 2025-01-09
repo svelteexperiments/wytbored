@@ -4,10 +4,11 @@
   import { Stage } from "konva/lib/Stage.js";
   import StyleToolbar from "./StyleToolbar.svelte";
   import Toolbar from "./Toolbar.svelte";
-  import { initKonva } from "./utils.js";
+  import { initKonva, isToastOpen } from "./utils.js";
   import HelpModal from "./HelpModal.svelte";
   import { theme } from "$lib/theme.js";
   import Menu from "./Menu.svelte";
+  import Toast from "./Toast.svelte";
 
   let containerDiv: HTMLDivElement;
   let stageWidth = window.innerWidth;
@@ -46,5 +47,8 @@
   <StyleToolbar />
   <Toolbar {stage} {layer} />
   <Menu {stage} />
+{/if}
+{#if $isToastOpen}
+  <Toast />
 {/if}
 <HelpModal />

@@ -142,6 +142,7 @@ export const selectTool = (stage: Stage, layer: Layer, tool: Tool) => {
             activateSelect(stage, layer)
             break;
         case "hand":
+            document.body.style.cursor = "move";
             stage.draggable(true)
             break;
         case "pen":
