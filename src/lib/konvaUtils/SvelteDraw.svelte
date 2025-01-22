@@ -6,7 +6,6 @@
   import Toolbar from "./Toolbar.svelte";
   import { initKonva, isToastOpen } from "./utils.js";
   import HelpModal from "./HelpModal.svelte";
-  import { theme } from "$lib/theme.js";
   import Menu from "./Menu.svelte";
   import Toast from "./Toast.svelte";
 
@@ -17,9 +16,6 @@
   let layer: Layer | null = $state(null);
 
   $effect(() => {
-    theme.set("light");
-    const storedTheme = localStorage.getItem("theme") || "light";
-    document.documentElement.classList.toggle("dark", storedTheme === "dark");
     // Initialize stage
     ({ stage, layer } = initKonva(containerDiv, stageWidth, stageHeight));
 
@@ -46,7 +42,7 @@
 {#if stage && layer}
   <StyleToolbar />
   <Toolbar {stage} {layer} />
-  <Menu {stage} />
+  <Menu {stage} {layer} />
 {/if}
 {#if $isToastOpen}
   <Toast />

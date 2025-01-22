@@ -1,11 +1,16 @@
 <script lang="ts">
   interface Props {
     stage: Stage;
+    layer: Layer;
   }
-  let { stage }: Props = $props();
+  let { stage, layer }: Props = $props();
   import { theme } from "$lib/theme.js";
-  import type { Stage } from "konva/lib/Stage.js";
+  import { Group } from "konva/lib/Group.js";
+  import { Layer } from "konva/lib/Layer.js";
+  import { Rect } from "konva/lib/shapes/Rect.js";
+  import { Stage } from "konva/lib/Stage.js";
   import Menu from "lucide-svelte/icons/menu";
+  import { get } from "svelte/store";
   let isDropDownOpen = $state(false);
   let dropDownMenu: HTMLDivElement;
   const toggleDropdown = () => {
@@ -19,7 +24,32 @@
     toggleDropdown();
   };
   const exportPNG = () => {
-    const dataURL = stage.toDataURL({ pixelRatio: 3 });
+    const allNodes = layer.find(".shape");
+    if (allNodes.length === 0) return;
+
+    const tempGroup = new Group();
+    allNodes.forEach((node) => {
+      const clone = node.clone();
+      tempGroup.add(clone);
+    });
+    const groupBox = tempGroup.getClientRect();
+    const backgroundRect = new Rect({
+      x: groupBox.x - 20,
+      y: groupBox.y - 20,
+      width: groupBox.width + 40,
+      height: groupBox.height + 40,
+      fill: get(theme) === "dark" ? "#0f172a" : "white",
+      listening: false,
+    });
+    tempGroup.add(backgroundRect);
+    backgroundRect.moveToBottom();
+    layer.add(tempGroup);
+    layer.batchDraw();
+    const dataURL = tempGroup.toDataURL({
+      mimeType: "image/png",
+      pixelRatio: 3,
+    });
+    tempGroup.destroy();
     downloadURI(dataURL, `SvelteDraw_${Date.now()}.png`);
     toggleDropdown();
   };
