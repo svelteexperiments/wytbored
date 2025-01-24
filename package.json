@@ -46,7 +46,6 @@
   "dependencies": {
     "@tailwindcss/container-queries": "^0.1.1",
     "@tailwindcss/typography": "^0.5.15",
-    "fabric": "^6.5.4",
     "konva": "^9.3.18",
     "lucide-svelte": "^0.469.0"
   }
