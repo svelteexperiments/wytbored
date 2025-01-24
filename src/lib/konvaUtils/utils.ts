@@ -4,6 +4,7 @@ import { Transformer } from "konva/lib/shapes/Transformer.js";
 import { Stage } from "konva/lib/Stage.js";
 import { selectTool } from "./tools.js";
 import { get, writable } from "svelte/store";
+import { Group } from "konva/lib/Group.js";
 
 export const isHelpModalOpen = writable<boolean>(false)
 export const isToastOpen = writable<boolean>(false);
@@ -49,10 +50,10 @@ export const initKonva = (containerDiv: HTMLDivElement, stageWidth: number, stag
             })
             tr.nodes([])
         }
-        if (event.ctrlKey && event.key === 'd') {
+        if ((event.ctrlKey || event.metaKey) && event.key === 'd') {
             if (!tr) return;
             tr.getNodes().forEach(node => {
-                if (node instanceof Shape) {
+                if (node instanceof Shape || node instanceof Group) {
                     const clonedNode = node.clone({
                         // Offset the cloned node to avoid overlap
                         x: node.x() + 20,
@@ -64,7 +65,7 @@ export const initKonva = (containerDiv: HTMLDivElement, stageWidth: number, stag
                 }
             })
         }
-        if (event.ctrlKey && event.key === 'a') {
+        if ((event.ctrlKey || event.metaKey) && event.key === 'a') {
             const allNodes = layer.find(".shape");
             if (allNodes.length === 0) return;
             tr.nodes(allNodes);

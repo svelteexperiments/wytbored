@@ -69,7 +69,12 @@ export const selectTool = (stage: Stage, layer: Layer, tool: Tool) => {
         if (!tr) return
         const selectedObjects = tr.getNodes();
         selectedObjects.forEach((obj) => {
-            if (obj instanceof Shape) obj.stroke(color);
+            if (obj instanceof Shape) obj.stroke(color)
+            if (obj instanceof Group) {
+                obj.getChildren().forEach(child => {
+                    if (child instanceof Shape) child.stroke(color)
+                })
+            }
         });
         layer.batchDraw();
     });
@@ -80,6 +85,11 @@ export const selectTool = (stage: Stage, layer: Layer, tool: Tool) => {
         const selectedObjects = tr.getNodes();
         selectedObjects.forEach((obj) => {
             if (obj instanceof Shape) obj.opacity(val);
+            if (obj instanceof Group) {
+                obj.getChildren().forEach(child => {
+                    if (child instanceof Shape) child.opacity(val)
+                })
+            }
         });
         layer.batchDraw();
     });
@@ -103,6 +113,25 @@ export const selectTool = (stage: Stage, layer: Layer, tool: Tool) => {
                     default:
                         break;
                 }
+            }
+            if (obj instanceof Group) {
+                obj.getChildren().forEach(child => {
+                    if (child instanceof Shape) {
+                        switch (val) {
+                            case "solid":
+                                child.dash([])
+                                break;
+                            case "dash":
+                                child.dash([33, 10])
+                                break;
+                            case "dot":
+                                child.dash([5, 5])
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                })
             }
         });
         layer.batchDraw();
@@ -1139,7 +1168,7 @@ function activateEraser(stage: Stage, layer: Layer) {
             // Highlight objects that intersect with the eraser line
             layer.getChildren().forEach(obj => {
                 if (obj === eraserLine) return;
-                if (obj instanceof Shape) {
+                if (obj instanceof Shape || obj instanceof Group) {
                     if (Util.haveIntersection(eraserLine!.getClientRect(), obj.getClientRect()) && !highlightedObjects.has(obj)) {
                         obj.opacity(0.3);
                         highlightedObjects.add(obj);
@@ -1159,7 +1188,7 @@ function activateEraser(stage: Stage, layer: Layer) {
         if (eraserLine) {
             layer.getChildren().forEach(obj => {
                 if (obj === eraserLine) return;
-                if (obj instanceof Shape) {
+                if (obj instanceof Shape || obj instanceof Group) {
                     if (Util.haveIntersection(eraserLine!.getClientRect(), obj.getClientRect())) {
                         obj.destroy();
                     }

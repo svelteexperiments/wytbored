@@ -29,7 +29,7 @@
   $effect(() => {
     document.addEventListener("keydown", (e) => {
       e.preventDefault();
-      if (e.ctrlKey && e.key === "k") {
+      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
         openModal();
       }
       if (e.key === "Escape") {
@@ -67,15 +67,15 @@
         <td class="px-4 py-2 border border-gray-300">Deletes the selected object(s)</td>
       </tr>
       <tr>
-        <td class="px-4 py-2 border border-gray-300">Ctrl + D</td>
+        <td class="px-4 py-2 border border-gray-300">Ctrl + D / Command + D</td>
         <td class="px-4 py-2 border border-gray-300">Duplicates selected object(s)</td>
       </tr>
       <tr>
-        <td class="px-4 py-2 border border-gray-300">Ctrl + A</td>
+        <td class="px-4 py-2 border border-gray-300">Ctrl + A / Command + A</td>
         <td class="px-4 py-2 border border-gray-300">Selects all objects</td>
       </tr>
       <tr>
-        <td class="px-4 py-2 border border-gray-300">Ctrl + K</td>
+        <td class="px-4 py-2 border border-gray-300">Ctrl + K / Command + K</td>
         <td class="px-4 py-2 border border-gray-300">Opens help menu</td>
       </tr>
       <tr>
