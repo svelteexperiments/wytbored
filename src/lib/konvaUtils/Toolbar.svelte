@@ -40,142 +40,208 @@
 </script>
 
 <div class="fixed bottom-5 left-1/2 -translate-x-1/2 flex gap-4 bg-white dark:bg-slate-800 border border-gray-300 shadow-lg rounded-lg px-4 py-2">
-  <button class="p-2 rounded {$selectedTool === 'select' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'}" onclick={() => selectTool(stage, layer, "select")}>
-    <MousePointer strokeWidth={1.5} size={20} />
-  </button>
-  <button class="p-2 rounded {$selectedTool === 'hand' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'}" onclick={() => selectTool(stage, layer, "hand")}>
-    <Hand strokeWidth={1.5} size={20} />
-  </button>
-  <button class="p-2 rounded {$selectedTool === 'pen' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'}" onclick={() => selectTool(stage, layer, "pen")}>
-    <Pencil strokeWidth={1.5} size={20} />
-  </button>
-  <button class="p-2 {$selectedTool === 'eraser' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded" onclick={() => selectTool(stage, layer, "eraser")}>
-    <Eraser strokeWidth={1.5} size={20} />
-  </button>
-  <button class="p-2 {$selectedTool === 'arrow' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded" onclick={() => selectTool(stage, layer, "arrow")}>
-    <MoveUpRight strokeWidth={1.5} size={20} />
-  </button>
-  <button class="p-2 {$selectedTool === 'text' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded" onclick={() => selectTool(stage, layer, "text")}>
-    <Type strokeWidth={1.5} size={20} />
-  </button>
-  <button class="p-2 {$selectedTool === 'image' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded">
-    <Image strokeWidth={1.5} size={20} />
-  </button>
-  <button class="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white rounded" onclick={() => layer.destroyChildren()}>
-    <PaintRoller strokeWidth={1.5} size={20} />
-  </button>
+  <div class="group relative inline-block">
+    <button class="p-2 rounded {$selectedTool === 'select' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'}" onclick={() => selectTool(stage, layer, "select")}>
+      <MousePointer strokeWidth={1.5} size={20} />
+    </button>
+    <div class="absolute z-10 invisible group-hover:visible bg-gray-800 text-white text-sm px-2 py-1 rounded mb-2 whitespace-nowrap transform -translate-x-1/2 left-1/2 bottom-full">Select</div>
+  </div>
+  <div class="group relative inline-block">
+    <button class="p-2 rounded {$selectedTool === 'hand' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'}" onclick={() => selectTool(stage, layer, "hand")}>
+      <Hand strokeWidth={1.5} size={20} />
+    </button>
+    <div class="absolute z-10 invisible group-hover:visible bg-gray-800 text-white text-sm px-2 py-1 rounded mb-2 whitespace-nowrap transform -translate-x-1/2 left-1/2 bottom-full">Pan/Move</div>
+  </div>
+  <div class="group relative inline-block">
+    <button class="p-2 rounded {$selectedTool === 'pen' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'}" onclick={() => selectTool(stage, layer, "pen")}>
+      <Pencil strokeWidth={1.5} size={20} />
+    </button>
+    <div class="absolute z-10 invisible group-hover:visible bg-gray-800 text-white text-sm px-2 py-1 rounded mb-2 whitespace-nowrap transform -translate-x-1/2 left-1/2 bottom-full">Pencil</div>
+  </div>
+  <div class="group relative inline-block">
+    <button class="p-2 {$selectedTool === 'eraser' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded" onclick={() => selectTool(stage, layer, "eraser")}>
+      <Eraser strokeWidth={1.5} size={20} />
+    </button>
+    <div class="absolute z-10 invisible group-hover:visible bg-gray-800 text-white text-sm px-2 py-1 rounded mb-2 whitespace-nowrap transform -translate-x-1/2 left-1/2 bottom-full">Eraser</div>
+  </div>
+  <div class="group relative inline-block">
+    <button class="p-2 {$selectedTool === 'arrow' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded" onclick={() => selectTool(stage, layer, "arrow")}>
+      <MoveUpRight strokeWidth={1.5} size={20} />
+    </button>
+    <div class="absolute z-10 invisible group-hover:visible bg-gray-800 text-white text-sm px-2 py-1 rounded mb-2 whitespace-nowrap transform -translate-x-1/2 left-1/2 bottom-full">Arrow</div>
+  </div>
+  <div class="group relative inline-block">
+    <button class="p-2 {$selectedTool === 'text' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded" onclick={() => selectTool(stage, layer, "text")}>
+      <Type strokeWidth={1.5} size={20} />
+    </button>
+    <div class="absolute z-10 invisible group-hover:visible bg-gray-800 text-white text-sm px-2 py-1 rounded mb-2 whitespace-nowrap transform -translate-x-1/2 left-1/2 bottom-full">Text</div>
+  </div>
+  <div class="group relative inline-block">
+    <button class="p-2 {$selectedTool === 'image' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded">
+      <Image strokeWidth={1.5} size={20} />
+    </button>
+    <div class="absolute z-10 invisible group-hover:visible bg-gray-800 text-white text-sm px-2 py-1 rounded mb-2 whitespace-nowrap transform -translate-x-1/2 left-1/2 bottom-full">Upload Image</div>
+  </div>
+  <div class="group relative inline-block">
+    <button class="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white rounded" onclick={() => layer.destroyChildren()}>
+      <PaintRoller strokeWidth={1.5} size={20} />
+    </button>
+    <div class="absolute z-10 invisible group-hover:visible bg-gray-800 text-white text-sm px-2 py-1 rounded mb-2 whitespace-nowrap transform -translate-x-1/2 left-1/2 bottom-full">Clear Board</div>
+  </div>
 
   <div class="relative">
-    <button class="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white rounded" onclick={toggleDropdown}>
-      {#if !isDropDownOpen}
-        <ChevronUp strokeWidth={1.5} size={20} />
-      {:else}
-        <X strokeWidth={1.5} size={20} />
-      {/if}
-    </button>
+    <div class="group relative inline-block">
+      <button class="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white rounded" onclick={toggleDropdown}>
+        {#if !isDropDownOpen}
+          <ChevronUp strokeWidth={1.5} size={20} />
+        {:else}
+          <X strokeWidth={1.5} size={20} />
+        {/if}
+      </button>
+      <div class="absolute z-10 invisible group-hover:visible bg-gray-800 text-white text-sm px-2 py-1 rounded mb-2 whitespace-nowrap transform -translate-x-1/2 left-1/2 bottom-full">
+        {#if !isDropDownOpen}
+          More Tools
+        {:else}
+          Close
+        {/if}
+      </div>
+    </div>
 
     <!-- Dropdown Menu -->
     <div bind:this={dropDownMenu} class="hidden w-48 absolute bottom-full mb-2 left-0 bg-white dark:bg-slate-800 border border-gray-300 shadow-lg rounded-lg p-2">
       <div class="grid grid-cols-4 gap-2">
-        <button
-          class="p-2 {$selectedTool === 'box' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
-          onclick={() => {
-            selectTool(stage, layer, "box");
-            toggleDropdown();
-          }}
-        >
-          <Square strokeWidth={1.5} size={20} />
-        </button>
-        <button
-          class="p-2 {$selectedTool === 'circle' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
-          onclick={() => {
-            selectTool(stage, layer, "circle");
-            toggleDropdown();
-          }}
-        >
-          <Circle strokeWidth={1.5} size={20} />
-        </button>
-        <button
-          class="p-2 {$selectedTool === 'triangle' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
-          onclick={() => {
-            selectTool(stage, layer, "triangle");
-            toggleDropdown();
-          }}
-        >
-          <Triangle strokeWidth={1.5} size={20} />
-        </button>
-        <button
-          class="p-2 {$selectedTool === 'diamond' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
-          onclick={() => {
-            selectTool(stage, layer, "diamond");
-            toggleDropdown();
-          }}
-        >
-          <Diamond strokeWidth={1.5} size={20} />
-        </button>
-        <button
-          class="p-2 {$selectedTool === 'hexagon' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
-          onclick={() => {
-            selectTool(stage, layer, "hexagon");
-            toggleDropdown();
-          }}
-        >
-          <Hexagon strokeWidth={1.5} size={20} />
-        </button>
-        <button
-          class="p-2 {$selectedTool === 'star' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
-          onclick={() => {
-            selectTool(stage, layer, "star");
-            toggleDropdown();
-          }}
-        >
-          <Star strokeWidth={1.5} size={20} />
-        </button>
-        <button
-          class="p-2 {$selectedTool === 'heart' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
-          onclick={() => {
-            selectTool(stage, layer, "heart");
-            toggleDropdown();
-          }}
-        >
-          <Heart strokeWidth={1.5} size={20} />
-        </button>
-        <button
-          class="p-2 {$selectedTool === 'boxX' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
-          onclick={() => {
-            selectTool(stage, layer, "boxX");
-            toggleDropdown();
-          }}
-        >
-          <SquareX strokeWidth={1.5} size={20} />
-        </button>
-        <button
-          class="p-2 {$selectedTool === 'boxCheck' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
-          onclick={() => {
-            selectTool(stage, layer, "boxCheck");
-            toggleDropdown();
-          }}
-        >
-          <SquareCheck strokeWidth={1.5} size={20} />
-        </button>
-        <button
-          class="p-2 {$selectedTool === 'fatArrow' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
-          onclick={() => {
-            selectTool(stage, layer, "fatArrow");
-            toggleDropdown();
-          }}
-        >
-          <ArrowBigUp strokeWidth={1} size={24} />
-        </button>
-        <button
-          class="p-2 {$selectedTool === 'line' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
-          onclick={() => {
-            selectTool(stage, layer, "line");
-            toggleDropdown();
-          }}
-        >
-          <Slash strokeWidth={1.5} size={20} />
-        </button>
+        <div class="group relative inline-block">
+          <button
+            class="p-2 {$selectedTool === 'box' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
+            onclick={() => {
+              selectTool(stage, layer, "box");
+              toggleDropdown();
+            }}
+          >
+            <Square strokeWidth={1.5} size={20} />
+          </button>
+          <div class="absolute z-10 invisible group-hover:visible bg-gray-800 text-white text-sm px-2 py-1 rounded mb-2 whitespace-nowrap transform -translate-x-1/2 left-1/2 bottom-full">Box</div>
+        </div>
+        <div class="group relative inline-block">
+          <button
+            class="p-2 {$selectedTool === 'circle' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
+            onclick={() => {
+              selectTool(stage, layer, "circle");
+              toggleDropdown();
+            }}
+          >
+            <Circle strokeWidth={1.5} size={20} />
+          </button>
+          <div class="absolute z-10 invisible group-hover:visible bg-gray-800 text-white text-sm px-2 py-1 rounded mb-2 whitespace-nowrap transform -translate-x-1/2 left-1/2 bottom-full">Oval</div>
+        </div>
+        <div class="group relative inline-block">
+          <button
+            class="p-2 {$selectedTool === 'triangle' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
+            onclick={() => {
+              selectTool(stage, layer, "triangle");
+              toggleDropdown();
+            }}
+          >
+            <Triangle strokeWidth={1.5} size={20} />
+          </button>
+          <div class="absolute z-10 invisible group-hover:visible bg-gray-800 text-white text-sm px-2 py-1 rounded mb-2 whitespace-nowrap transform -translate-x-1/2 left-1/2 bottom-full">Triangle</div>
+        </div>
+        <div class="group relative inline-block">
+          <button
+            class="p-2 {$selectedTool === 'diamond' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
+            onclick={() => {
+              selectTool(stage, layer, "diamond");
+              toggleDropdown();
+            }}
+          >
+            <Diamond strokeWidth={1.5} size={20} />
+          </button>
+          <div class="absolute z-10 invisible group-hover:visible bg-gray-800 text-white text-sm px-2 py-1 rounded mb-2 whitespace-nowrap transform -translate-x-1/2 left-1/2 bottom-full">Diamond</div>
+        </div>
+        <div class="group relative inline-block">
+          <button
+            class="p-2 {$selectedTool === 'hexagon' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
+            onclick={() => {
+              selectTool(stage, layer, "hexagon");
+              toggleDropdown();
+            }}
+          >
+            <Hexagon strokeWidth={1.5} size={20} />
+          </button>
+          <div class="absolute z-10 invisible group-hover:visible bg-gray-800 text-white text-sm px-2 py-1 rounded mb-2 whitespace-nowrap transform -translate-x-1/2 left-1/2 bottom-full">Hexagon</div>
+        </div>
+        <div class="group relative inline-block">
+          <button
+            class="p-2 {$selectedTool === 'star' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
+            onclick={() => {
+              selectTool(stage, layer, "star");
+              toggleDropdown();
+            }}
+          >
+            <Star strokeWidth={1.5} size={20} />
+          </button>
+          <div class="absolute z-10 invisible group-hover:visible bg-gray-800 text-white text-sm px-2 py-1 rounded mb-2 whitespace-nowrap transform -translate-x-1/2 left-1/2 bottom-full">Star</div>
+        </div>
+        <div class="group relative inline-block">
+          <button
+            class="p-2 {$selectedTool === 'heart' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
+            onclick={() => {
+              selectTool(stage, layer, "heart");
+              toggleDropdown();
+            }}
+          >
+            <Heart strokeWidth={1.5} size={20} />
+          </button>
+          <div class="absolute z-10 invisible group-hover:visible bg-gray-800 text-white text-sm px-2 py-1 rounded mb-2 whitespace-nowrap transform -translate-x-1/2 left-1/2 bottom-full">Heart</div>
+        </div>
+        <div class="group relative inline-block">
+          <button
+            class="p-2 {$selectedTool === 'boxX' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
+            onclick={() => {
+              selectTool(stage, layer, "boxX");
+              toggleDropdown();
+            }}
+          >
+            <SquareX strokeWidth={1.5} size={20} />
+          </button>
+          <div class="absolute z-10 invisible group-hover:visible bg-gray-800 text-white text-sm px-2 py-1 rounded mb-2 whitespace-nowrap transform -translate-x-1/2 left-1/2 bottom-full">Cross</div>
+        </div>
+        <div class="group relative inline-block">
+          <button
+            class="p-2 {$selectedTool === 'boxCheck' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
+            onclick={() => {
+              selectTool(stage, layer, "boxCheck");
+              toggleDropdown();
+            }}
+          >
+            <SquareCheck strokeWidth={1.5} size={20} />
+          </button>
+          <div class="absolute z-10 invisible group-hover:visible bg-gray-800 text-white text-sm px-2 py-1 rounded mb-2 whitespace-nowrap transform -translate-x-1/2 left-1/2 bottom-full">Check</div>
+        </div>
+        <div class="group relative inline-block">
+          <button
+            class="p-2 {$selectedTool === 'fatArrow' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
+            onclick={() => {
+              selectTool(stage, layer, "fatArrow");
+              toggleDropdown();
+            }}
+          >
+            <ArrowBigUp strokeWidth={1} size={24} />
+          </button>
+          <div class="absolute z-10 invisible group-hover:visible bg-gray-800 text-white text-sm px-2 py-1 rounded mb-2 whitespace-nowrap transform -translate-x-1/2 left-1/2 bottom-full">Fat Arrow</div>
+        </div>
+        <div class="group relative inline-block">
+          <button
+            class="p-2 {$selectedTool === 'line' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded"
+            onclick={() => {
+              selectTool(stage, layer, "line");
+              toggleDropdown();
+            }}
+          >
+            <Slash strokeWidth={1.5} size={20} />
+          </button>
+          <div class="absolute z-10 invisible group-hover:visible bg-gray-800 text-white text-sm px-2 py-1 rounded mb-2 whitespace-nowrap transform -translate-x-1/2 left-1/2 bottom-full">Line</div>
+        </div>
       </div>
     </div>
   </div>
