@@ -144,14 +144,7 @@ export const registerDefaultEvents = (stage: Stage) => {
     // Scale limits
     const MIN_SCALE = 0.5; // 50%
     const MAX_SCALE = 4; // 400%
-    const bounds = {
-        x: [-1000, 1000], // Min and max allowed x-axis range
-        y: [-1000, 1000], // Min and max allowed y-axis range
-    };
-    const glowState = { top: false, bottom: false, left: false, right: false };
 
-
-    const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
     // Handle zoom with mouse wheel
     stage.on("wheel", (e) => {
         e.evt.preventDefault();
@@ -178,27 +171,9 @@ export const registerDefaultEvents = (stage: Stage) => {
         stage.position(newPos);
         stage.batchDraw();
     });
-    stage.on("dragmove", (e) => {
-        const stage = e.target;
-        if (stage instanceof Stage) {
-            const position = stage.position();
-            const x = clamp(position.x, bounds.x[0], bounds.x[1]);
-            const y = clamp(position.y, bounds.y[0], bounds.y[1]);
-            stage.position({ x, y });
-            glowState.top = y <= bounds.y[0];
-            glowState.bottom = y >= bounds.y[1];
-            glowState.left = x <= bounds.x[0];
-            glowState.right = x >= bounds.x[1];
-            const hasGlow = Object.values(glowState).some(value => value === true);
-            if (hasGlow) {
-                isToastOpen.set(true)
-                setTimeout(() => {
-                    isToastOpen.set(false)
-                }, 2000)
-            }
-        }
-    })
+
     stage.on("dragend", (e) => {
+        if (e.target instanceof Stage) return;
         stage.fire("object:modified", { target: e.target })
     })
 }
