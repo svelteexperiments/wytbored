@@ -42,7 +42,7 @@
     fileInput.click();
   };
   $effect(() => {
-    fileInput.addEventListener("change", (event) => {
+    fileInput.addEventListener("change", () => {
       if (!fileInput.files) return;
       const file = fileInput.files[0];
       if (file && file.type.startsWith("image/")) {
@@ -53,10 +53,7 @@
           const img = new Image();
           img.src = imageUrl;
           img.onload = () => {
-            const pos = stage.getPointerPosition();
-            if (!pos) return;
-            const transformedPos = stage.getAbsoluteTransform().copy().invert().point(pos);
-            addImage(stage, layer, transformedPos, img);
+            addImage(stage, layer, img);
           };
           img.onerror = (error) => {
             console.error("Failed to load image:", error);

@@ -123,7 +123,7 @@ export const initKonva = (containerDiv: HTMLDivElement, stageWidth: number, stag
                     const img = new Image();
                     img.src = imageUrl;
                     img.onload = () => {
-                        addImage(stage, layer, pos, img)
+                        addImage(stage, layer, img)
                     }
                     img.onerror = (error) => {
                         console.error('Failed to load image:', error);

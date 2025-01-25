@@ -1224,11 +1224,18 @@ export const addTextNode = (stage: Stage, layer: Layer, pos: Vector2d, text: str
     resetStage(stage, layer, "select")
 }
 
-export const addImage = (stage: Stage, layer: Layer, pos: Vector2d, img: HTMLImageElement) => {
+export const addImage = (stage: Stage, layer: Layer, img: HTMLImageElement) => {
+    const stageWidth = stage.width();
+    const stageHeight = stage.height();
+    const scale = stage.scaleX();
+    const stageX = stage.x();
+    const stageY = stage.y();
+    const viewportCenterX = (-stageX + (stageWidth / 2)) / scale;
+    const viewportCenterY = (-stageY + (stageHeight / 2)) / scale;
     const konvaImage = new KonvaImage({
         name: 'shape',
-        x: pos.x,
-        y: pos.y,
+        x: viewportCenterX - 300,
+        y: viewportCenterY - 300,
         image: img,
         width: img.width,
         height: img.height,
