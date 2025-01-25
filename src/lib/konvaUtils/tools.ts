@@ -76,6 +76,10 @@ export const selectTool = (stage: Stage, layer: Layer, tool: Tool) => {
                     if (child instanceof Shape) child.stroke(color)
                 })
             }
+            if (obj instanceof Text) {
+                obj.fill(color)
+                obj.stroke(color)
+            }
         });
         layer.batchDraw();
     });
@@ -462,9 +466,10 @@ function activateText(stage: Stage, layer: Layer) {
             x: transformedPos.x,
             y: transformedPos.y,
             fontSize: 30,
-            // stroke: get(selectedColor),
+            stroke: get(selectedColor),
             fontFamily: `"Chewy", serif`,
             fill: get(selectedColor),
+            draggable: true
         });
         layer.add(textNode);
         textNode.on('dblclick dbltap', () => {
@@ -496,7 +501,7 @@ function activateText(stage: Stage, layer: Layer) {
             textarea.style.fontFamily = textNode.fontFamily();
             textarea.style.transformOrigin = 'left top';
             textarea.style.textAlign = textNode.align();
-            textarea.style.color = textNode.fill().toString();
+            textarea.style.color = textNode.stroke().toString();
             const rotation = textNode.rotation();
             let transform = '';
             if (rotation) {
