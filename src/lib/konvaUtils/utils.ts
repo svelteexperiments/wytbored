@@ -2,7 +2,7 @@ import { Layer } from "konva/lib/Layer.js";
 import { Shape } from "konva/lib/Shape.js";
 import { Transformer } from "konva/lib/shapes/Transformer.js";
 import { Stage } from "konva/lib/Stage.js";
-import { addImage, addTextNode, editingText, selectTool } from "./tools.js";
+import { addImage, addTextNode, editingText, resetStage, selectTool } from "./tools.js";
 import { get, writable } from "svelte/store";
 import { Group } from "konva/lib/Group.js";
 
@@ -35,7 +35,7 @@ export const initKonva = (containerDiv: HTMLDivElement, stageWidth: number, stag
     layer.add(tr)
     stage.add(layer);
 
-    registerDefaultEvents(stage)
+    resetStage(stage, layer, "select")
     editingText.subscribe((val) => {
         if (!val) {
             document.addEventListener('keydown', keyEvents);
@@ -135,7 +135,6 @@ export const initKonva = (containerDiv: HTMLDivElement, stageWidth: number, stag
             }
         }
     }
-
 
     return { stage, layer }
 }

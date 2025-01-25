@@ -51,14 +51,14 @@ let opacitySubscription: Unsubscriber;
 let strokeStyleSubscription: Unsubscriber;
 let themeSubscription: Unsubscriber;
 
-const resetStage = (stage: Stage, layer: Layer, selectTool: "select" | null = null) => {
+export const resetStage = (stage: Stage, layer: Layer, select: "select" | null = null) => {
     stage.off();
     stage.draggable(false)
     document.body.style.cursor = "default";
     registerDefaultEvents(stage);
-    if (selectTool) {
-        selectedTool.set(selectTool);
-        activateSelect(stage, layer)
+    if (select) {
+        selectedTool.set(select);
+        selectTool(stage, layer, "select")
     }
 }
 
@@ -150,6 +150,16 @@ export const selectTool = (stage: Stage, layer: Layer, tool: Tool) => {
         }
         const shapes = layer.getChildren()
         shapes.forEach(shape => {
+            if (shape instanceof Text) {
+                if (val === "dark" && shape.fill() === "#000000") {
+                    shape.fill("#ffffff")
+                    return;
+                }
+                if (val === "light" && shape.fill() === "#ffffff") {
+                    shape.fill("#000000")
+                    return;
+                }
+            }
             if (shape instanceof Shape) {
                 changeStrokeColor(shape)
             }
