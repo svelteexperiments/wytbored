@@ -10,7 +10,7 @@
   import Eraser from "lucide-svelte/icons/eraser";
   import MoveUpRight from "lucide-svelte/icons/move-up-right";
   import Type from "lucide-svelte/icons/type";
-  import Image from "lucide-svelte/icons/image";
+  import ImageIcon from "lucide-svelte/icons/image";
   import ChevronUp from "lucide-svelte/icons/chevron-up";
   import X from "lucide-svelte/icons/x";
   import Square from "lucide-svelte/icons/square";
@@ -25,10 +25,11 @@
   import ArrowBigUp from "lucide-svelte/icons/arrow-big-up";
   import Slash from "lucide-svelte/icons/slash";
   import PaintRoller from "lucide-svelte/icons/paint-roller";
-  import { selectedTool, selectTool } from "./tools.js";
+  import { addImage, selectedTool, selectTool } from "./tools.js";
   import type { Stage } from "konva/lib/Stage.js";
   import type { Layer } from "konva/lib/Layer.js";
 
+  let fileInput: HTMLInputElement;
   let dropDownMenu: HTMLDivElement;
   let isDropDownOpen = $state(false);
   const toggleDropdown = () => {
@@ -37,6 +38,36 @@
       isDropDownOpen = !isDropDownOpen;
     }
   };
+  const imageUpload = () => {
+    fileInput.click();
+  };
+  $effect(() => {
+    fileInput.addEventListener("change", (event) => {
+      if (!fileInput.files) return;
+      const file = fileInput.files[0];
+      if (file && file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          if (!e.target) return;
+          const imageUrl = e.target.result as string;
+          const img = new Image();
+          img.src = imageUrl;
+          img.onload = () => {
+            const pos = stage.getPointerPosition();
+            if (!pos) return;
+            const transformedPos = stage.getAbsoluteTransform().copy().invert().point(pos);
+            addImage(stage, layer, transformedPos, img);
+          };
+          img.onerror = (error) => {
+            console.error("Failed to load image:", error);
+          };
+        };
+        reader.readAsDataURL(file);
+      } else {
+        console.log("Please select a valid image file.");
+      }
+    });
+  });
 </script>
 
 <div class="fixed bottom-5 left-1/2 -translate-x-1/2 flex gap-4 bg-white dark:bg-slate-800 border border-gray-300 shadow-lg rounded-lg px-4 py-2">
@@ -77,9 +108,10 @@
     <div class="absolute z-10 invisible group-hover:visible bg-gray-800 text-white text-sm px-2 py-1 rounded mb-2 whitespace-nowrap transform -translate-x-1/2 left-1/2 bottom-full">Text</div>
   </div>
   <div class="group relative inline-block">
-    <button class="p-2 {$selectedTool === 'image' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded">
-      <Image strokeWidth={1.5} size={20} />
+    <button class="p-2 {$selectedTool === 'image' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded" onclick={imageUpload}>
+      <ImageIcon strokeWidth={1.5} size={20} />
     </button>
+    <input bind:this={fileInput} type="file" accept="image/*" class="hidden" />
     <div class="absolute z-10 invisible group-hover:visible bg-gray-800 text-white text-sm px-2 py-1 rounded mb-2 whitespace-nowrap transform -translate-x-1/2 left-1/2 bottom-full">Upload Image</div>
   </div>
   <div class="group relative inline-block">

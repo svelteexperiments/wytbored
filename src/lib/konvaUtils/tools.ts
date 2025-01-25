@@ -16,6 +16,7 @@ import { Util } from "konva/lib/Util.js";
 import { registerDefaultEvents } from "./utils.js";
 import { Group } from "konva/lib/Group.js";
 import { theme } from "$lib/theme.js";
+import { Image as KonvaImage } from "konva/lib/shapes/Image.js";
 
 const STROKE_WIDTH = 5;
 
@@ -50,18 +51,19 @@ let opacitySubscription: Unsubscriber;
 let strokeStyleSubscription: Unsubscriber;
 let themeSubscription: Unsubscriber;
 
-const resetStage = (stage: Stage, selectTool: "select" | null = null) => {
+const resetStage = (stage: Stage, layer: Layer, selectTool: "select" | null = null) => {
     stage.off();
     stage.draggable(false)
     document.body.style.cursor = "default";
     registerDefaultEvents(stage);
     if (selectTool) {
         selectedTool.set(selectTool);
+        activateSelect(stage, layer)
     }
 }
 
 export const selectTool = (stage: Stage, layer: Layer, tool: Tool) => {
-    resetStage(stage);
+    resetStage(stage, layer);
     selectedTool.set(tool);
     enableDraggable(layer, tool === "select")
     if (colorSubscription) colorSubscription();
@@ -70,15 +72,15 @@ export const selectTool = (stage: Stage, layer: Layer, tool: Tool) => {
         if (!tr) return
         const selectedObjects = tr.getNodes();
         selectedObjects.forEach((obj) => {
+            if (obj instanceof Text) {
+                obj.fill(color)
+                return;
+            }
             if (obj instanceof Shape) obj.stroke(color)
             if (obj instanceof Group) {
                 obj.getChildren().forEach(child => {
                     if (child instanceof Shape) child.stroke(color)
                 })
-            }
-            if (obj instanceof Text) {
-                obj.fill(color)
-                obj.stroke(color)
             }
         });
         layer.batchDraw();
@@ -460,138 +462,7 @@ function activateText(stage: Stage, layer: Layer) {
         const pos = stage.getPointerPosition();
         if (!pos) return
         const transformedPos = transformPoints(stage, pos)
-        const textNode = new Text({
-            name: 'shape',
-            text: 'Some text here',
-            x: transformedPos.x,
-            y: transformedPos.y,
-            fontSize: 30,
-            stroke: get(selectedColor),
-            fontFamily: `"Chewy", serif`,
-            fill: get(selectedColor),
-            draggable: true
-        });
-        layer.add(textNode);
-        textNode.on('dblclick dbltap', () => {
-            editingText.set(true)
-            textNode.hide();
-            const textPosition = textNode.absolutePosition();
-            const areaPosition = {
-                x: stage.container().offsetLeft + textPosition.x,
-                y: stage.container().offsetTop + textPosition.y,
-            };
-            const textarea = document.createElement('textarea');
-            document.body.appendChild(textarea);
-            textarea.value = textNode.text();
-            textarea.style.position = 'absolute';
-            textarea.style.top = areaPosition.y + 'px';
-            textarea.style.left = areaPosition.x + 'px';
-            textarea.style.width = textNode.width() - textNode.padding() * 2 + 'px';
-            textarea.style.height =
-                textNode.height() - textNode.padding() * 2 + 5 + 'px';
-            textarea.style.fontSize = textNode.fontSize() + 'px';
-            textarea.style.border = 'none';
-            textarea.style.padding = '0px';
-            textarea.style.margin = '0px';
-            textarea.style.overflow = 'hidden';
-            textarea.style.background = 'none';
-            textarea.style.outline = 'none';
-            textarea.style.resize = 'none';
-            textarea.style.lineHeight = textNode.lineHeight().toString();
-            textarea.style.fontFamily = textNode.fontFamily();
-            textarea.style.transformOrigin = 'left top';
-            textarea.style.textAlign = textNode.align();
-            textarea.style.color = textNode.stroke().toString();
-            const rotation = textNode.rotation();
-            let transform = '';
-            if (rotation) {
-                transform += 'rotateZ(' + rotation + 'deg)';
-            }
-
-            var px = 0;
-            // also we need to slightly move textarea on firefox
-            // because it jumps a bit
-            var isFirefox =
-                navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
-            if (isFirefox) {
-                px += 2 + Math.round(textNode.fontSize() / 20);
-            }
-            transform += 'translateY(-' + px + 'px)';
-
-            textarea.style.transform = transform;
-
-            // reset height
-            textarea.style.height = 'auto';
-            // after browsers resized it we can set actual value
-            textarea.style.height = textarea.scrollHeight + 3 + 'px';
-
-            textarea.focus();
-
-            function removeTextarea() {
-                if (!textarea.parentNode) return;
-                textarea.parentNode.removeChild(textarea);
-                window.removeEventListener('click', handleOutsideClick);
-                textNode.show();
-                editingText.set(false)
-            }
-
-            function setTextareaWidth(newWidth: number) {
-                if (!newWidth) {
-                    //@ts-ignore
-                    newWidth = textNode.placeholder.length * textNode.fontSize();
-                }
-                // some extra fixes on different browsers
-                const isSafari = /^((?!chrome|android).)*safari/i.test(
-                    navigator.userAgent
-                );
-                const isFirefox =
-                    navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
-                if (isSafari || isFirefox) {
-                    newWidth = Math.ceil(newWidth);
-                }
-
-                //@ts-ignore
-                const isEdge = document.documentMode || /Edge/.test(navigator.userAgent);
-                if (isEdge) {
-                    newWidth += 1;
-                }
-                textarea.style.width = newWidth + 'px';
-            }
-
-            textarea.addEventListener('keydown', function (e) {
-                // hide on enter
-                // but don't hide on shift + enter
-                if (e.key === "Enter" && !e.shiftKey) {
-                    textNode.text(textarea.value);
-                    removeTextarea();
-                }
-                // on esc do not set value back to node
-                if (e.key === "Escape") {
-                    removeTextarea();
-                }
-            });
-
-            textarea.addEventListener('keydown', function (e) {
-                const scale = textNode.getAbsoluteScale().x;
-                setTextareaWidth(textNode.width() * scale);
-                textarea.style.height = 'auto';
-                textarea.style.height =
-                    textarea.scrollHeight + textNode.fontSize() + 'px';
-            });
-
-            function handleOutsideClick(e: any) {
-                if (e.target !== textarea) {
-                    textNode.text(textarea.value);
-                    removeTextarea();
-                }
-            }
-            setTimeout(() => {
-                window.addEventListener('click', handleOutsideClick);
-            });
-        });
-        selectNodes(layer, [textNode])
-        stage.fire('object:added', { target: textNode })
-        resetStage(stage, "select")
+        addTextNode(stage, layer, transformedPos)
     })
 }
 
@@ -1217,4 +1088,156 @@ function fadeOutTrail(line: Line, layer: Layer, duration = 500) {
             layer.batchDraw();
         }
     });
+}
+
+export const addTextNode = (stage: Stage, layer: Layer, pos: Vector2d, text: string | null = null) => {
+    const textNode = new Text({
+        name: 'shape',
+        text: text ? text : 'Some text here',
+        x: pos.x,
+        y: pos.y,
+        fontSize: 30,
+        fontFamily: `"Chewy", serif`,
+        fill: get(selectedColor),
+        draggable: true
+    });
+    layer.add(textNode);
+    textNode.on('dblclick dbltap', () => {
+        editingText.set(true)
+        textNode.hide();
+        const textPosition = textNode.absolutePosition();
+        const areaPosition = {
+            x: stage.container().offsetLeft + textPosition.x,
+            y: stage.container().offsetTop + textPosition.y,
+        };
+        const textarea = document.createElement('textarea');
+        document.body.appendChild(textarea);
+        textarea.value = textNode.text();
+        textarea.style.position = 'absolute';
+        textarea.style.top = areaPosition.y + 'px';
+        textarea.style.left = areaPosition.x + 'px';
+        textarea.style.width = textNode.width() - textNode.padding() * 2 + 'px';
+        textarea.style.height =
+            textNode.height() - textNode.padding() * 2 + 5 + 'px';
+        textarea.style.fontSize = textNode.fontSize() + 'px';
+        textarea.style.border = 'none';
+        textarea.style.padding = '0px';
+        textarea.style.margin = '0px';
+        textarea.style.overflow = 'hidden';
+        textarea.style.background = 'none';
+        textarea.style.outline = 'none';
+        textarea.style.resize = 'none';
+        textarea.style.lineHeight = textNode.lineHeight().toString();
+        textarea.style.fontFamily = textNode.fontFamily();
+        textarea.style.transformOrigin = 'left top';
+        textarea.style.textAlign = textNode.align();
+        textarea.style.color = textNode.fill().toString();
+        const rotation = textNode.rotation();
+        let transform = '';
+        if (rotation) {
+            transform += 'rotateZ(' + rotation + 'deg)';
+        }
+
+        var px = 0;
+        // also we need to slightly move textarea on firefox
+        // because it jumps a bit
+        var isFirefox =
+            navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+        if (isFirefox) {
+            px += 2 + Math.round(textNode.fontSize() / 20);
+        }
+        transform += 'translateY(-' + px + 'px)';
+
+        textarea.style.transform = transform;
+
+        // reset height
+        textarea.style.height = 'auto';
+        // after browsers resized it we can set actual value
+        textarea.style.height = textarea.scrollHeight + 3 + 'px';
+
+        textarea.focus();
+
+        function removeTextarea() {
+            if (!textarea.parentNode) return;
+            textarea.parentNode.removeChild(textarea);
+            window.removeEventListener('click', handleOutsideClick);
+            textNode.show();
+            editingText.set(false)
+        }
+
+        function setTextareaWidth(newWidth: number) {
+            if (!newWidth) {
+                //@ts-ignore
+                newWidth = textNode.placeholder.length * textNode.fontSize();
+            }
+            // some extra fixes on different browsers
+            const isSafari = /^((?!chrome|android).)*safari/i.test(
+                navigator.userAgent
+            );
+            const isFirefox =
+                navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+            if (isSafari || isFirefox) {
+                newWidth = Math.ceil(newWidth);
+            }
+
+            //@ts-ignore
+            const isEdge = document.documentMode || /Edge/.test(navigator.userAgent);
+            if (isEdge) {
+                newWidth += 1;
+            }
+            textarea.style.width = newWidth + 'px';
+        }
+
+        textarea.addEventListener('keydown', function (e) {
+            // hide on enter
+            // but don't hide on shift + enter
+            if (e.key === "Enter" && !e.shiftKey) {
+                textNode.text(textarea.value);
+                removeTextarea();
+            }
+            // on esc do not set value back to node
+            if (e.key === "Escape") {
+                removeTextarea();
+            }
+        });
+
+        textarea.addEventListener('keydown', function (e) {
+            const scale = textNode.getAbsoluteScale().x;
+            setTextareaWidth(textNode.width() * scale);
+            textarea.style.height = 'auto';
+            textarea.style.height =
+                textarea.scrollHeight + textNode.fontSize() + 'px';
+        });
+
+        function handleOutsideClick(e: any) {
+            if (e.target !== textarea) {
+                textNode.text(textarea.value);
+                removeTextarea();
+            }
+        }
+        setTimeout(() => {
+            window.addEventListener('click', handleOutsideClick);
+        });
+    });
+    selectNodes(layer, [textNode])
+    stage.fire('object:added', { target: textNode })
+    resetStage(stage, layer, "select")
+}
+
+export const addImage = (stage: Stage, layer: Layer, pos: Vector2d, img: HTMLImageElement) => {
+    const konvaImage = new KonvaImage({
+        name: 'shape',
+        x: pos.x,
+        y: pos.y,
+        image: img,
+        width: img.width,
+        height: img.height,
+        draggable: true,
+    });
+    layer.add(konvaImage);
+    layer.batchDraw()
+    deselectEverything(layer)
+    selectNodes(layer, [konvaImage])
+    resetStage(stage, layer, "select")
+    stage.fire('object:added', { target: konvaImage })
 }

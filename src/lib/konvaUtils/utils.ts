@@ -2,7 +2,7 @@ import { Layer } from "konva/lib/Layer.js";
 import { Shape } from "konva/lib/Shape.js";
 import { Transformer } from "konva/lib/shapes/Transformer.js";
 import { Stage } from "konva/lib/Stage.js";
-import { editingText, selectTool } from "./tools.js";
+import { addImage, addTextNode, editingText, selectTool } from "./tools.js";
 import { get, writable } from "svelte/store";
 import { Group } from "konva/lib/Group.js";
 
@@ -44,8 +44,7 @@ export const initKonva = (containerDiv: HTMLDivElement, stageWidth: number, stag
         }
     })
 
-    function keyEvents(event: KeyboardEvent) {
-        console.log("test")
+    async function keyEvents(event: KeyboardEvent) {
         event.preventDefault()
         const tr: Transformer = <Transformer>layer.getChildren().find((child) => child.id() == "global-selector")
         if (event.key === 'Escape' && !get(isHelpModalOpen)) {
@@ -102,6 +101,38 @@ export const initKonva = (containerDiv: HTMLDivElement, stageWidth: number, stag
                 }
                 stage.fire('object:modified', { target: node })
             });
+        }
+        if ((event.ctrlKey || event.metaKey) && event.key === 'v') {
+            try {
+                const pos = stage.getPointerPosition()
+                if (!pos) return
+                const transformedPos = stage.getAbsoluteTransform().copy().invert().point(pos)
+                const clipboardItems = await navigator.clipboard.read();
+                if (clipboardItems.length == 0) return;
+                const mostRecentItem = clipboardItems[0];
+                if (mostRecentItem.types.includes('text/plain')) {
+                    const text = await mostRecentItem.getType('text/plain');
+                    const textData = await text.text();
+
+                    addTextNode(stage, layer, transformedPos, textData)
+                    return;
+                }
+                if (mostRecentItem.types.includes('image/png')) {
+                    const imageBlob = await mostRecentItem.getType('image/png');
+                    const imageUrl = URL.createObjectURL(imageBlob);
+                    const img = new Image();
+                    img.src = imageUrl;
+                    img.onload = () => {
+                        addImage(stage, layer, pos, img)
+                    }
+                    img.onerror = (error) => {
+                        console.error('Failed to load image:', error);
+                    };
+                    return;
+                }
+            } catch (error) {
+                console.error('Failed to read clipboard contents:', error);
+            }
         }
     }
 

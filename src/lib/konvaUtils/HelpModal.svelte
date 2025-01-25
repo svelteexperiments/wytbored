@@ -87,6 +87,10 @@
         <td class="px-4 py-2 border border-gray-300">Opens help menu</td>
       </tr>
       <tr>
+        <td class="px-4 py-2 border border-gray-300">Ctrl + V / Command + V</td>
+        <td class="px-4 py-2 border border-gray-300">Paste a text or image form clipboard</td>
+      </tr>
+      <tr>
         <td class="px-4 py-2 border border-gray-300">Arrow Keys</td>
         <td class="px-4 py-2 border border-gray-300">Moves selected object(s) in the respective direction</td>
       </tr>
