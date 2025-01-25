@@ -2,6 +2,7 @@
   import X from "lucide-svelte/icons/x";
   import BadgeHelp from "lucide-svelte/icons/badge-help";
   import { isHelpModalOpen } from "./utils.js";
+  import { editingText } from "./tools.js";
 
   let modal: HTMLDialogElement;
   const openModal = () => {
@@ -27,7 +28,14 @@
     }
   };
   $effect(() => {
-    document.addEventListener("keydown", (e) => {
+    editingText.subscribe((val) => {
+      if (!val) {
+        document.addEventListener("keydown", keyEvent);
+      } else {
+        document.removeEventListener("keydown", keyEvent);
+      }
+    });
+    function keyEvent(e: KeyboardEvent) {
       e.preventDefault();
       if ((e.ctrlKey || e.metaKey) && e.key === "k") {
         openModal();
@@ -35,7 +43,7 @@
       if (e.key === "Escape") {
         closeModal();
       }
-    });
+    }
   });
 </script>
 

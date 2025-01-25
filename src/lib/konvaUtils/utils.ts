@@ -2,7 +2,7 @@ import { Layer } from "konva/lib/Layer.js";
 import { Shape } from "konva/lib/Shape.js";
 import { Transformer } from "konva/lib/shapes/Transformer.js";
 import { Stage } from "konva/lib/Stage.js";
-import { selectTool } from "./tools.js";
+import { editingText, selectTool } from "./tools.js";
 import { get, writable } from "svelte/store";
 import { Group } from "konva/lib/Group.js";
 
@@ -36,7 +36,16 @@ export const initKonva = (containerDiv: HTMLDivElement, stageWidth: number, stag
     stage.add(layer);
 
     registerDefaultEvents(stage)
-    document.addEventListener('keydown', function (event) {
+    editingText.subscribe((val) => {
+        if (!val) {
+            document.addEventListener('keydown', keyEvents);
+        } else {
+            document.removeEventListener('keydown', keyEvents)
+        }
+    })
+
+    function keyEvents(event: KeyboardEvent) {
+        console.log("test")
         event.preventDefault()
         const tr: Transformer = <Transformer>layer.getChildren().find((child) => child.id() == "global-selector")
         if (event.key === 'Escape' && !get(isHelpModalOpen)) {
@@ -94,7 +103,8 @@ export const initKonva = (containerDiv: HTMLDivElement, stageWidth: number, stag
                 stage.fire('object:modified', { target: node })
             });
         }
-    });
+    }
+
 
     return { stage, layer }
 }

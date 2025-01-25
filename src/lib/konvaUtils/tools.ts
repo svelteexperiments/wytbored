@@ -43,6 +43,7 @@ export let selectedTool = writable<Tool>("select");
 export let selectedColor = writable<string>(get(theme) === "light" ? "#000000" : "#ffffff");
 export let opacity = writable<number>(1)
 export let strokeStyle = writable<"solid" | "dash" | "dot">("solid")
+export let editingText = writable<boolean>(false)
 
 let colorSubscription: Unsubscriber;
 let opacitySubscription: Unsubscriber;
@@ -467,6 +468,7 @@ function activateText(stage: Stage, layer: Layer) {
         });
         layer.add(textNode);
         textNode.on('dblclick dbltap', () => {
+            editingText.set(true)
             textNode.hide();
             const textPosition = textNode.absolutePosition();
             const areaPosition = {
@@ -525,6 +527,7 @@ function activateText(stage: Stage, layer: Layer) {
                 textarea.parentNode.removeChild(textarea);
                 window.removeEventListener('click', handleOutsideClick);
                 textNode.show();
+                editingText.set(false)
             }
 
             function setTextareaWidth(newWidth: number) {
@@ -1161,7 +1164,8 @@ function activateEraser(stage: Stage, layer: Layer) {
 
         const pos = stage.getPointerPosition();
         if (pos) {
-            drawingPoints.push(pos.x, pos.y);
+            const transformedPos = transformPoints(stage, pos)
+            drawingPoints.push(transformedPos.x, transformedPos.y);
             eraserLine.points(drawingPoints);
             layer.batchDraw();
 
