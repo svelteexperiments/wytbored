@@ -6,9 +6,7 @@ import type { Vector2d } from "konva/lib/types.js";
 import { Arrow } from "konva/lib/shapes/Arrow.js";
 import { Text } from "konva/lib/shapes/Text.js";
 import { Rect } from "konva/lib/shapes/Rect.js";
-import { Ellipse } from "konva/lib/shapes/Ellipse.js";
 import { Star } from "konva/lib/shapes/Star.js";
-import { RegularPolygon } from "konva/lib/shapes/RegularPolygon.js";
 import { Shape } from "konva/lib/Shape.js";
 import { Transformer } from "konva/lib/shapes/Transformer.js";
 import type { Node, NodeConfig } from "konva/lib/Node.js";
@@ -17,6 +15,10 @@ import { registerDefaultEvents } from "./utils.js";
 import { Group } from "konva/lib/Group.js";
 import { theme } from "$lib/theme.js";
 import { Image as KonvaImage } from "konva/lib/shapes/Image.js";
+import { RoughCircle } from "$lib/shapes/RoughCircle.js";
+import { RoughRect } from "$lib/shapes/RoughRect.js";
+import { RoughPolygon } from "$lib/shapes/RoughPolygon.js";
+import { RoughLine } from "$lib/shapes/RoughLine.js";
 
 const STROKE_WIDTH = 5;
 
@@ -210,6 +212,7 @@ export const selectTool = (stage: Stage, layer: Layer, tool: Tool) => {
             activateLine(stage, layer);
             break;
         case "box":
+            // activateRect(stage, layer);
             activateRect(stage, layer);
             break;
         case "circle":
@@ -424,7 +427,7 @@ function activateLine(stage: Stage, layer: Layer) {
     let isPaint = false
     document.body.style.cursor = "crosshair";
     let startPos: Vector2d | null = null;
-    let previewShape: Line;
+    let previewShape: RoughLine;
 
     stage.on('mousedown touchstart', (e) => {
         if (e.target !== stage) {
@@ -435,13 +438,18 @@ function activateLine(stage: Stage, layer: Layer) {
         startPos = stage.getPointerPosition();
         if (!startPos) return;
         const transformedStartPos = transformPoints(stage, startPos)
-        previewShape = new Line({
-            name: 'shape',
-            dash: getStrokeStyle(),
-            points: [transformedStartPos.x, transformedStartPos.y],
-            fill: "transparent",
+        previewShape = new RoughLine({
             stroke: get(selectedColor),
             strokeWidth: STROKE_WIDTH,
+            fill: "transparent",
+            fillStyle: 'cross-hatch',
+            fillWeight: 1,
+            hachureGap: 5,
+            rough: true,
+            seed: generateRandomSeed(),
+            draggable: true,
+            name: 'shape',
+            points: [transformedStartPos.x, transformedStartPos.y],
         });
         layer.add(previewShape);
     })
@@ -481,7 +489,7 @@ function activateRect(stage: Stage, layer: Layer) {
     document.body.style.cursor = "crosshair";
     let startPos: Vector2d | null = null;
     let endPos: Vector2d | null = null;
-    let previewShape: Rect;
+    let previewShape: RoughRect;
     stage.on('mousedown touchstart', (e) => {
         if (e.target !== stage) {
             e.cancelBubble = true;
@@ -491,17 +499,22 @@ function activateRect(stage: Stage, layer: Layer) {
         startPos = stage.getPointerPosition();
         if (!startPos) return;
         const transformedStartPos = transformPoints(stage, startPos)
-        previewShape = new Rect({
+        previewShape = new RoughRect({
+            stroke: get(selectedColor),
+            strokeWidth: STROKE_WIDTH,
+            fill: "transparent",
+            fillStyle: 'cross-hatch',
+            fillWeight: 1,
+            hachureGap: 5,
+            rough: true,
+            seed: generateRandomSeed(),
+            draggable: true,
             name: 'shape',
-            dash: getStrokeStyle(),
             x: transformedStartPos.x,
             y: transformedStartPos.y,
             width: 0,
             height: 0,
-            fill: "transparent",
-            cornerRadius: 5,
-            stroke: get(selectedColor),
-            strokeWidth: STROKE_WIDTH,
+            cornerRadius: 5
         });
         layer.add(previewShape);
     })
@@ -543,7 +556,7 @@ function activateCircle(stage: Stage, layer: Layer) {
     document.body.style.cursor = "crosshair";
     let startPos: Vector2d | null = null;
     let endPos: Vector2d | null = null;
-    let previewShape: Ellipse;
+    let previewShape: RoughCircle;
     stage.on('mousedown touchstart', (e) => {
         if (e.target !== stage) {
             e.cancelBubble = true;
@@ -553,16 +566,20 @@ function activateCircle(stage: Stage, layer: Layer) {
         startPos = stage.getPointerPosition();
         if (!startPos) return;
         const transformedStartPos = transformPoints(stage, startPos)
-        previewShape = new Ellipse({
-            name: 'shape',
-            dash: getStrokeStyle(),
+        previewShape = new RoughCircle({
             x: transformedStartPos.x,
             y: transformedStartPos.y,
-            radiusX: 1, // Initial radius
-            radiusY: 1,
-            fill: "transparent",
+            radius: 1, // Initial radius
             stroke: get(selectedColor),
             strokeWidth: STROKE_WIDTH,
+            fill: "transparent",
+            fillStyle: 'cross-hatch',
+            fillWeight: 1,
+            hachureGap: 5,
+            rough: true,
+            seed: generateRandomSeed(),
+            draggable: true,
+            name: 'shape',
         });
 
         layer.add(previewShape);
@@ -574,8 +591,7 @@ function activateCircle(stage: Stage, layer: Layer) {
         if (!endPos) return
         const transformedStartPos = transformPoints(stage, startPos)
         const transformedEndPos = transformPoints(stage, endPos)
-        previewShape.radiusX(Math.abs(transformedStartPos.x - transformedEndPos.x));
-        previewShape.radiusY(Math.abs(transformedStartPos.y - transformedEndPos.y));
+        previewShape.radius(Math.abs(transformedStartPos.x - transformedEndPos.x));
         layer.batchDraw(); // Refresh the layer to see the changes
     })
     stage.on('mouseup touchend', (e) => {
@@ -645,7 +661,7 @@ function activatePolygon(stage: Stage, layer: Layer, sides: number) {
     document.body.style.cursor = "crosshair";
     let startPos: Vector2d | null = null;
     let endPos: Vector2d | null = null;
-    let previewShape: RegularPolygon;
+    let previewShape: RoughPolygon;
     stage.on('mousedown touchstart', (e) => {
         if (e.target !== stage) {
             e.cancelBubble = true;
@@ -655,16 +671,21 @@ function activatePolygon(stage: Stage, layer: Layer, sides: number) {
         startPos = stage.getPointerPosition();
         if (!startPos) return;
         const transformedStartPos = transformPoints(stage, startPos)
-        previewShape = new RegularPolygon({
-            name: 'shape',
-            dash: getStrokeStyle(),
+        previewShape = new RoughPolygon({
             x: transformedStartPos.x,
             y: transformedStartPos.y,
             sides,
             radius: 1, // Initial radius
-            fill: "transparent",
             stroke: get(selectedColor),
             strokeWidth: STROKE_WIDTH,
+            fill: "transparent",
+            fillStyle: 'cross-hatch',
+            fillWeight: 1,
+            hachureGap: 5,
+            rough: true,
+            seed: generateRandomSeed(),
+            draggable: true,
+            name: 'shape',
         });
 
         layer.add(previewShape);
@@ -1257,4 +1278,16 @@ export const addImage = (stage: Stage, layer: Layer, img: HTMLImageElement) => {
     selectNodes(layer, [konvaImage])
     resetStage(stage, layer, "select")
     stage.fire('object:added', { target: konvaImage })
+}
+
+function generateRandomSeed(): number {
+    // Using `crypto.getRandomValues()` for cryptographically secure randomness
+    if (typeof crypto !== "undefined" && crypto.getRandomValues) {
+        const array = new Uint32Array(1);
+        crypto.getRandomValues(array);
+        return array[0];
+    }
+
+    // Fallback to `Math.random()` if crypto API is not available
+    return Math.floor(Math.random() * 1000000);
 }
