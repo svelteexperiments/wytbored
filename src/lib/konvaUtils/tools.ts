@@ -19,6 +19,10 @@ import { RoughCircle } from "$lib/shapes/RoughCircle.js";
 import { RoughRect } from "$lib/shapes/RoughRect.js";
 import { RoughPolygon } from "$lib/shapes/RoughPolygon.js";
 import { RoughLine } from "$lib/shapes/RoughLine.js";
+import { RoughStar } from "$lib/shapes/RoughStar.js";
+import { RoughHeart } from "$lib/shapes/RoughHeart.js";
+import { RoughBoxX } from "$lib/shapes/RoughBoxX.js";
+import { RoughBoxCheck } from "$lib/shapes/RoughBoxCheck.js";
 
 const STROKE_WIDTH = 5;
 
@@ -234,7 +238,7 @@ export const selectTool = (stage: Stage, layer: Layer, tool: Tool) => {
             activateHeart(stage, layer)
             break;
         case "boxX":
-            activateBoxWithX(stage, layer)
+            activateBoxX(stage, layer)
             break;
         case "boxCheck":
             activateBoxWithCheck(stage, layer)
@@ -447,7 +451,6 @@ function activateLine(stage: Stage, layer: Layer) {
             hachureGap: 5,
             rough: true,
             seed: generateRandomSeed(),
-            draggable: true,
             name: 'shape',
             points: [transformedStartPos.x, transformedStartPos.y],
         });
@@ -508,7 +511,6 @@ function activateRect(stage: Stage, layer: Layer) {
             hachureGap: 5,
             rough: true,
             seed: generateRandomSeed(),
-            draggable: true,
             name: 'shape',
             x: transformedStartPos.x,
             y: transformedStartPos.y,
@@ -578,7 +580,6 @@ function activateCircle(stage: Stage, layer: Layer) {
             hachureGap: 5,
             rough: true,
             seed: generateRandomSeed(),
-            draggable: true,
             name: 'shape',
         });
 
@@ -607,7 +608,7 @@ function activateStar(stage: Stage, layer: Layer) {
     document.body.style.cursor = "crosshair";
     let startPos: Vector2d | null = null;
     let endPos: Vector2d | null = null;
-    let previewShape: Star;
+    let previewShape: RoughStar;
     stage.on('mousedown touchstart', (e) => {
         if (e.target !== stage) {
             e.cancelBubble = true;
@@ -617,9 +618,8 @@ function activateStar(stage: Stage, layer: Layer) {
         startPos = stage.getPointerPosition();
         if (!startPos) return;
         const transformedStartPos = transformPoints(stage, startPos)
-        previewShape = new Star({
+        previewShape = new RoughStar({
             name: 'shape',
-            dash: getStrokeStyle(),
             x: transformedStartPos.x,
             y: transformedStartPos.y,
             numPoints: 5,
@@ -628,6 +628,11 @@ function activateStar(stage: Stage, layer: Layer) {
             fill: "transparent",
             stroke: get(selectedColor),
             strokeWidth: STROKE_WIDTH,
+            fillStyle: 'cross-hatch',
+            fillWeight: 1,
+            hachureGap: 5,
+            rough: true,
+            seed: generateRandomSeed(),
         });
 
         layer.add(previewShape);
@@ -684,7 +689,6 @@ function activatePolygon(stage: Stage, layer: Layer, sides: number) {
             hachureGap: 5,
             rough: true,
             seed: generateRandomSeed(),
-            draggable: true,
             name: 'shape',
         });
 
@@ -724,7 +728,7 @@ function activateHeart(stage: Stage, layer: Layer) {
         startPos = stage.getPointerPosition();
         if (!startPos) return;
         const transformedStartPos = transformPoints(stage, startPos)
-        previewShape = new Shape({
+        previewShape = new RoughHeart({
             name: 'shape',
             dash: getStrokeStyle(),
             x: transformedStartPos.x,
@@ -734,32 +738,11 @@ function activateHeart(stage: Stage, layer: Layer) {
             fill: "transparent",
             stroke: get(selectedColor),
             strokeWidth: STROKE_WIDTH,
-            sceneFunc: function (context, shape) {
-                const width = shape.width();
-                const height = shape.height();
-
-                context.beginPath();
-                context.moveTo(width / 2, height / 4);
-
-                // Left curve
-                context.bezierCurveTo(
-                    width / 6, 0,  // Control point 1
-                    0, height / 2,  // Control point 2
-                    width / 2, height  // End point
-                );
-
-                // Right curve
-                context.bezierCurveTo(
-                    width, height / 2,  // Control point 1
-                    width * 5 / 6, 0,  // Control point 2
-                    width / 2, height / 4  // End point
-                );
-
-                context.closePath();
-
-                // Konva specific method to apply fill and stroke
-                context.fillStrokeShape(shape);
-            },
+            fillStyle: 'cross-hatch',
+            fillWeight: 1,
+            hachureGap: 5,
+            rough: true,
+            seed: generateRandomSeed(),
         });
         layer.add(previewShape);
     })
@@ -796,140 +779,135 @@ function activateHeart(stage: Stage, layer: Layer) {
     })
 }
 
-function activateBoxWithX(stage: Stage, layer: Layer) {
-    let isPaint = false;
+function activateBoxX(stage: Stage, layer: Layer) {
+    let isPaint = false
     document.body.style.cursor = "crosshair";
-    let startX: number, startY: number, group: Group, rect: Rect, line1: Line, line2: Line;
+    let startPos: Vector2d | null = null;
+    let endPos: Vector2d | null = null;
+    let previewShape: RoughBoxX;
     stage.on('mousedown touchstart', (e) => {
         if (e.target !== stage) {
             e.cancelBubble = true;
             return;
         }
         isPaint = true;
-        const pos = stage.getPointerPosition();
-        if (!pos) return
-        const transformedPos = transformPoints(stage, pos)
-        startX = transformedPos.x;
-        startY = transformedPos.y;
-        group = new Group({
-            name: "shape"
-        })
-        rect = new Rect({
-            dash: getStrokeStyle(),
-            x: startX,
-            y: startY,
+        startPos = stage.getPointerPosition();
+        if (!startPos) return;
+        const transformedStartPos = transformPoints(stage, startPos)
+        previewShape = new RoughBoxX({
+            stroke: get(selectedColor),
+            strokeWidth: STROKE_WIDTH,
+            fill: "transparent",
+            fillStyle: 'cross-hatch',
+            fillWeight: 1,
+            hachureGap: 5,
+            rough: true,
+            seed: generateRandomSeed(),
+            name: 'shape',
+            x: transformedStartPos.x,
+            y: transformedStartPos.y,
             width: 0,
             height: 0,
-            stroke: get(selectedColor),
-            strokeWidth: STROKE_WIDTH
+            cornerRadius: 5
         });
-
-        line1 = new Line({
-            dash: getStrokeStyle(),
-            points: [startX, startY, startX, startY],
-            stroke: get(selectedColor),
-            strokeWidth: STROKE_WIDTH
-        });
-
-        line2 = new Line({
-            dash: getStrokeStyle(),
-            points: [startX, startY, startX, startY],
-            stroke: get(selectedColor),
-            strokeWidth: STROKE_WIDTH
-        });
-
-        group.add(rect, line1, line2);
-        layer.add(group);
-    });
+        layer.add(previewShape);
+    })
     stage.on('mousemove touchmove', (e) => {
         if (!isPaint) return;
-        const pos = stage.getPointerPosition();
-        if (!pos) return
-        const transformedPos = transformPoints(stage, pos)
-        const width = transformedPos.x - startX;
-        const height = transformedPos.y - startY;
+        endPos = stage.getPointerPosition();
+        if (!startPos) return
+        if (!endPos) return
+        const transformedStartPos = transformPoints(stage, startPos)
+        const transformedEndPos = transformPoints(stage, endPos)
+        if (transformedStartPos.x > transformedEndPos.x) {
+            let temp = transformedStartPos.x;
+            transformedStartPos.x = transformedEndPos.x;
+            transformedEndPos.x = temp;
+        }
+        if (transformedStartPos.y > transformedEndPos.y) {
+            let temp = transformedStartPos.y;
+            transformedStartPos.y = transformedEndPos.y;
+            transformedEndPos.y = temp;
+        }
 
-        rect.width(width);
-        rect.height(height);
-
-        line1.points([startX, startY, startX + width, startY + height]);
-        line2.points([startX + width, startY, startX, startY + height]);
-
+        const { x, y } = transformedStartPos;
+        const width = Math.abs(transformedEndPos.x - x);
+        const height = Math.abs(transformedEndPos.y - y);
+        previewShape.setAttr("width", width);
+        previewShape.setAttr("height", height);
         layer.batchDraw();
     })
     stage.on('mouseup touchend', (e) => {
         if (!isPaint) return;
         isPaint = false;
-        selectNodes(layer, [group])
-        stage.fire('object:added', { target: group })
+        selectNodes(layer, [previewShape])
+        stage.fire('object:added', { target: previewShape })
     })
 }
 
 function activateBoxWithCheck(stage: Stage, layer: Layer) {
-    let isPaint = false;
+    let isPaint = false
     document.body.style.cursor = "crosshair";
-    let startX: number, startY: number, group: Group, rect: Rect, check: Line;
+    let startPos: Vector2d | null = null;
+    let endPos: Vector2d | null = null;
+    let previewShape: RoughBoxCheck;
     stage.on('mousedown touchstart', (e) => {
         if (e.target !== stage) {
             e.cancelBubble = true;
             return;
         }
         isPaint = true;
-        const pos = stage.getPointerPosition();
-        if (!pos) return
-        const transformedPos = transformPoints(stage, pos)
-        startX = transformedPos.x;
-        startY = transformedPos.y;
-        group = new Group({
-            name: "shape"
-        })
-        rect = new Rect({
-            dash: getStrokeStyle(),
-            x: startX,
-            y: startY,
+        startPos = stage.getPointerPosition();
+        if (!startPos) return;
+        const transformedStartPos = transformPoints(stage, startPos)
+        previewShape = new RoughBoxCheck({
+            stroke: get(selectedColor),
+            strokeWidth: STROKE_WIDTH,
+            fill: "transparent",
+            fillStyle: 'cross-hatch',
+            fillWeight: 1,
+            hachureGap: 5,
+            rough: true,
+            seed: generateRandomSeed(),
+            name: 'shape',
+            x: transformedStartPos.x,
+            y: transformedStartPos.y,
             width: 0,
             height: 0,
-            stroke: get(selectedColor),
-            strokeWidth: STROKE_WIDTH
+            cornerRadius: 5
         });
-
-        check = new Line({
-            dash: getStrokeStyle(),
-            points: [startX, startY, startX, startY],
-            stroke: get(selectedColor),
-            strokeWidth: STROKE_WIDTH
-        });
-
-        group.add(rect, check);
-        layer.add(group);
-    });
+        layer.add(previewShape);
+    })
     stage.on('mousemove touchmove', (e) => {
         if (!isPaint) return;
-        const pos = stage.getPointerPosition();
-        if (!pos) return
-        const transformedPos = transformPoints(stage, pos)
-        const width = transformedPos.x - startX;
-        const height = transformedPos.y - startY;
+        endPos = stage.getPointerPosition();
+        if (!startPos) return
+        if (!endPos) return
+        const transformedStartPos = transformPoints(stage, startPos)
+        const transformedEndPos = transformPoints(stage, endPos)
+        if (transformedStartPos.x > transformedEndPos.x) {
+            let temp = transformedStartPos.x;
+            transformedStartPos.x = transformedEndPos.x;
+            transformedEndPos.x = temp;
+        }
+        if (transformedStartPos.y > transformedEndPos.y) {
+            let temp = transformedStartPos.y;
+            transformedStartPos.y = transformedEndPos.y;
+            transformedEndPos.y = temp;
+        }
 
-        rect.width(width);
-        rect.height(height);
-
-        const checkStartX = startX + width * 0.2;
-        const checkStartY = startY + height * 0.6;
-        const checkMidX = startX + width * 0.45;
-        const checkMidY = startY + height * 0.8;
-        const checkEndX = startX + width * 0.8;
-        const checkEndY = startY + height * 0.3;
-
-        check.points([checkStartX, checkStartY, checkMidX, checkMidY, checkEndX, checkEndY]);
-
+        const { x, y } = transformedStartPos;
+        const width = Math.abs(transformedEndPos.x - x);
+        const height = Math.abs(transformedEndPos.y - y);
+        previewShape.setAttr("width", width);
+        previewShape.setAttr("height", height);
         layer.batchDraw();
     })
     stage.on('mouseup touchend', (e) => {
         if (!isPaint) return;
         isPaint = false;
-        selectNodes(layer, [group])
-        stage.fire('object:added', { target: group })
+        selectNodes(layer, [previewShape])
+        stage.fire('object:added', { target: previewShape })
     })
 }
 
@@ -1061,7 +1039,6 @@ function activateEraser(stage: Stage, layer: Layer) {
             lineCap: 'round',
             lineJoin: 'round',
             points: [],
-            draggable: false,
         });
         layer.add(eraserLine);
     });
