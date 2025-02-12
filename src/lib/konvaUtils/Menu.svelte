@@ -11,6 +11,7 @@
   import { Stage } from "konva/lib/Stage.js";
   import Menu from "lucide-svelte/icons/menu";
   import { get } from "svelte/store";
+  import HelpModal from "./HelpModal.svelte";
   let isDropDownOpen = $state(false);
   let dropDownMenu: HTMLDivElement;
   const toggleDropdown = () => {
@@ -87,6 +88,7 @@
         <button class="rounded p-2 hover:bg-gray-200 dark:hover:bg-slate-700 text-left dark:text-white" onclick={exportPNG}>Export PNG</button>
         <button class="rounded p-2 hover:bg-gray-200 dark:hover:bg-slate-700 text-left dark:text-white" onclick={exportJSON}>Export JSON</button>
         <button class="rounded p-2 hover:bg-gray-200 dark:hover:bg-slate-700 text-left dark:text-white" onclick={importJSON}>Import JSON</button>
+        <HelpModal />
       </div>
     </div>
   </div>

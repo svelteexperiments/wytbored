@@ -28,6 +28,7 @@
   import { addImage, selectedTool, selectTool } from "./tools.js";
   import type { Stage } from "konva/lib/Stage.js";
   import type { Layer } from "konva/lib/Layer.js";
+  import HelpModal from "./HelpModal.svelte";
 
   let fileInput: HTMLInputElement;
   let dropDownMenu: HTMLDivElement;
@@ -67,7 +68,7 @@
   });
 </script>
 
-<div class="fixed bottom-5 left-1/2 -translate-x-1/2 flex gap-4 bg-white dark:bg-slate-800 border border-gray-300 shadow-lg rounded-lg px-4 py-2">
+<div class="fixed max-w-sm md:max-w-[unset] bottom-5 left-1/2 -translate-x-1/2 flex gap-1 md:gap-4 bg-white dark:bg-slate-800 border border-gray-300 shadow-lg rounded-lg px-4 py-2">
   <div class="group relative inline-block">
     <button class="p-2 rounded {$selectedTool === 'select' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'}" onclick={() => selectTool(stage, layer, "select")}>
       <MousePointer strokeWidth={1.5} size={20} />
@@ -92,13 +93,13 @@
     </button>
     <div class="absolute z-10 invisible group-hover:visible bg-gray-800 text-white text-sm px-2 py-1 rounded mb-2 whitespace-nowrap transform -translate-x-1/2 left-1/2 bottom-full">Eraser</div>
   </div>
-  <div class="group relative inline-block">
+  <div class="hidden group relative md:inline-block">
     <button class="p-2 {$selectedTool === 'arrow' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded" onclick={() => selectTool(stage, layer, "arrow")}>
       <MoveUpRight strokeWidth={1.5} size={20} />
     </button>
     <div class="absolute z-10 invisible group-hover:visible bg-gray-800 text-white text-sm px-2 py-1 rounded mb-2 whitespace-nowrap transform -translate-x-1/2 left-1/2 bottom-full">Arrow</div>
   </div>
-  <div class="group relative inline-block">
+  <div class="hidden group relative md:inline-block">
     <button class="p-2 {$selectedTool === 'text' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded" onclick={() => selectTool(stage, layer, "text")}>
       <Type strokeWidth={1.5} size={20} />
     </button>
@@ -137,7 +138,7 @@
     </div>
 
     <!-- Dropdown Menu -->
-    <div bind:this={dropDownMenu} class="hidden w-48 absolute bottom-full mb-2 left-0 bg-white dark:bg-slate-800 border border-gray-300 shadow-lg rounded-lg p-2">
+    <div bind:this={dropDownMenu} class="hidden w-48 absolute bottom-full mb-2 right-0 bg-white dark:bg-slate-800 border border-gray-300 shadow-lg rounded-lg p-2">
       <div class="grid grid-cols-4 gap-2">
         <div class="group relative inline-block">
           <button
@@ -270,6 +271,18 @@
             <Slash strokeWidth={1.5} size={20} />
           </button>
           <div class="absolute z-10 invisible group-hover:visible bg-gray-800 text-white text-sm px-2 py-1 rounded mb-2 whitespace-nowrap transform -translate-x-1/2 left-1/2 bottom-full">Line</div>
+        </div>
+        <div class="inline-block group relative md:hidden">
+          <button class="p-2 {$selectedTool === 'arrow' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded" onclick={() => selectTool(stage, layer, "arrow")}>
+            <MoveUpRight strokeWidth={1.5} size={20} />
+          </button>
+          <div class="absolute z-10 invisible group-hover:visible bg-gray-800 text-white text-sm px-2 py-1 rounded mb-2 whitespace-nowrap transform -translate-x-1/2 left-1/2 bottom-full">Arrow</div>
+        </div>
+        <div class="inline-block group relative md:hidden">
+          <button class="p-2 {$selectedTool === 'text' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 dark:hover:bg-slate-700 dark:text-white'} rounded" onclick={() => selectTool(stage, layer, "text")}>
+            <Type strokeWidth={1.5} size={20} />
+          </button>
+          <div class="absolute z-10 invisible group-hover:visible bg-gray-800 text-white text-sm px-2 py-1 rounded mb-2 whitespace-nowrap transform -translate-x-1/2 left-1/2 bottom-full">Text</div>
         </div>
       </div>
     </div>

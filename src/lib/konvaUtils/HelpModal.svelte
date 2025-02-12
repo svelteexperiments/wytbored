@@ -1,6 +1,5 @@
 <script lang="ts">
   import X from "lucide-svelte/icons/x";
-  import BadgeHelp from "lucide-svelte/icons/badge-help";
   import { isHelpModalOpen } from "./utils.js";
   import { editingText } from "./tools.js";
 
@@ -47,9 +46,7 @@
   });
 </script>
 
-<button class="fixed bottom-4 right-4 w-12 h-12 grid place-items-center text-white bg-indigo-500 hover:bg-indigo-400 rounded-full" onclick={openModal}>
-  <BadgeHelp />
-</button>
+<button class="rounded p-2 hover:bg-gray-200 dark:hover:bg-slate-700 text-left dark:text-white" onclick={openModal}>Help</button>
 <dialog bind:this={modal} class="relative p-6 bg-white dark:bg-slate-800 rounded-lg shadow-lg dark:text-white">
   <button class="close-button" onclick={closeModal}>
     <X />

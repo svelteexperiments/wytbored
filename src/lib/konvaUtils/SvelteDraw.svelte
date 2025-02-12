@@ -47,4 +47,3 @@
 {#if $isToastOpen}
   <Toast />
 {/if}
-<HelpModal />

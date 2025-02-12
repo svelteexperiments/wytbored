@@ -6,7 +6,6 @@ import type { Vector2d } from "konva/lib/types.js";
 import { Arrow } from "konva/lib/shapes/Arrow.js";
 import { Text } from "konva/lib/shapes/Text.js";
 import { Rect } from "konva/lib/shapes/Rect.js";
-import { Star } from "konva/lib/shapes/Star.js";
 import { Shape } from "konva/lib/Shape.js";
 import { Transformer } from "konva/lib/shapes/Transformer.js";
 import type { Node, NodeConfig } from "konva/lib/Node.js";
@@ -424,6 +423,7 @@ function activateArrow(stage: Stage, layer: Layer) {
         isPaint = false;
         selectNodes(layer, [previewShape])
         stage.fire('object:added', { target: previewShape })
+        resetStage(stage, layer, "select")
     })
 }
 
@@ -471,6 +471,7 @@ function activateLine(stage: Stage, layer: Layer) {
         isPaint = false;
         selectNodes(layer, [previewShape])
         stage.fire('object:added', { target: previewShape })
+        resetStage(stage, layer, "select")
     })
 }
 
@@ -550,6 +551,7 @@ function activateRect(stage: Stage, layer: Layer) {
         isPaint = false;
         selectNodes(layer, [previewShape])
         stage.fire('object:added', { target: previewShape })
+        resetStage(stage, layer, "select")
     })
 }
 
@@ -600,6 +602,7 @@ function activateCircle(stage: Stage, layer: Layer) {
         isPaint = false
         selectNodes(layer, [previewShape])
         stage.fire('object:added', { target: previewShape })
+        resetStage(stage, layer, "select")
     })
 }
 
@@ -658,6 +661,7 @@ function activateStar(stage: Stage, layer: Layer) {
         isPaint = false
         selectNodes(layer, [previewShape])
         stage.fire('object:added', { target: previewShape })
+        resetStage(stage, layer, "select")
     })
 }
 
@@ -709,6 +713,7 @@ function activatePolygon(stage: Stage, layer: Layer, sides: number) {
         isPaint = false
         selectNodes(layer, [previewShape])
         stage.fire('object:added', { target: previewShape })
+        resetStage(stage, layer, "select")
     })
 }
 
@@ -776,6 +781,7 @@ function activateHeart(stage: Stage, layer: Layer) {
         isPaint = false;
         selectNodes(layer, [previewShape])
         stage.fire('object:added', { target: previewShape })
+        resetStage(stage, layer, "select")
     })
 }
 
@@ -842,6 +848,7 @@ function activateBoxX(stage: Stage, layer: Layer) {
         isPaint = false;
         selectNodes(layer, [previewShape])
         stage.fire('object:added', { target: previewShape })
+        resetStage(stage, layer, "select")
     })
 }
 
@@ -908,6 +915,7 @@ function activateBoxWithCheck(stage: Stage, layer: Layer) {
         isPaint = false;
         selectNodes(layer, [previewShape])
         stage.fire('object:added', { target: previewShape })
+        resetStage(stage, layer, "select")
     })
 }
 
@@ -948,13 +956,13 @@ function activateFatArrow(stage: Stage, layer: Layer) {
         const arrowHeadHeight = height * 0.4;
 
         const points = [
-            startX, startY + height,                                            // Bottom left
-            startX + width, startY + height,                                    // Bottom right
-            startX + width, startY + arrowHeadHeight,                           // Right vertical
-            startX + width + width * 0.4, startY + arrowHeadHeight,             // Slight right
-            startX + width / 2, startY,                          // Top point (arrowhead)
-            startX - width * 0.4, startY + arrowHeadHeight,                     // Left vertical
-            startX, startY + arrowHeadHeight                     // Left vertical
+            startX, startY + height,
+            startX + width, startY + height,
+            startX + width, startY + arrowHeadHeight,
+            startX + width + width * 0.4, startY + arrowHeadHeight,
+            startX + width / 2, startY,
+            startX - width * 0.4, startY + arrowHeadHeight,
+            startX, startY + arrowHeadHeight
         ];
 
         fatArrow.points(points);
@@ -966,6 +974,7 @@ function activateFatArrow(stage: Stage, layer: Layer) {
         isPaint = false;
         selectNodes(layer, [fatArrow])
         stage.fire('object:added', { target: fatArrow })
+        resetStage(stage, layer, "select")
     })
 }
 
