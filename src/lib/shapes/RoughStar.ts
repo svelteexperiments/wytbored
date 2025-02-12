@@ -80,3 +80,4 @@ export class RoughStar extends Star {
         return points as unknown as Point[];
     }
 }
+RoughStar.prototype.className = "RoughStar"

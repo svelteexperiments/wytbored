@@ -61,3 +61,4 @@ export class RoughPolygon extends RegularPolygon {
         context.fillStrokeShape(this);
     }
 }
+RoughPolygon.prototype.className = "RoughPolygon"

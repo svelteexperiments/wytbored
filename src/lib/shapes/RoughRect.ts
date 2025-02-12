@@ -39,3 +39,4 @@ export class RoughRect extends Rect {
         context.fillStrokeShape(this);
     }
 }
+RoughRect.prototype.className = "RoughRect"

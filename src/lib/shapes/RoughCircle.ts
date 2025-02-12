@@ -43,3 +43,4 @@ export class RoughCircle extends Circle {
         context.fillStrokeShape(this);
     }
 }
+RoughCircle.prototype.className = "RoughCircle"

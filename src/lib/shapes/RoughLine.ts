@@ -50,3 +50,4 @@ export class RoughLine extends Line {
         context.fillStrokeShape(this);
     }
 }
+RoughLine.prototype.className = "RoughLine"

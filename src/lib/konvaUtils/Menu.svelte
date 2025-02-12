@@ -12,8 +12,11 @@
   import Menu from "lucide-svelte/icons/menu";
   import { get } from "svelte/store";
   import HelpModal from "./HelpModal.svelte";
+  import { recreateElements } from "./utils.js";
   let isDropDownOpen = $state(false);
   let dropDownMenu: HTMLDivElement;
+  let fileInput: HTMLInputElement;
+
   const toggleDropdown = () => {
     if (dropDownMenu) {
       dropDownMenu.classList.toggle("hidden");
@@ -61,7 +64,7 @@
     toggleDropdown();
   };
   const importJSON = () => {
-    // Implement Pending
+    if (fileInput) fileInput.click();
     toggleDropdown();
   };
   function downloadURI(uri: string, name: string) {
@@ -72,6 +75,24 @@
     link.click();
     document.body.removeChild(link);
     // delete link;
+  }
+  function handleFileUpload(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        let fileContent = (e.target!.result as string).replace(/\\/g, "");
+        fileContent = fileContent.substring(1, fileContent.length - 1);
+        const canvasData = JSON.parse(fileContent);
+        if (canvasData.children.length > 0 && canvasData.children[0].className === "Layer") {
+          const elements = canvasData.children[0].children.filter((child: any) => child.attrs.name === "shape");
+          recreateElements(stage, layer, elements);
+        } else {
+          return;
+        }
+      };
+      reader.readAsText(file);
+    }
   }
 </script>
 
@@ -93,3 +114,4 @@
     </div>
   </div>
 </div>
+<input type="file" class="hidden" bind:this={fileInput} accept="application/json" onchange={handleFileUpload} />

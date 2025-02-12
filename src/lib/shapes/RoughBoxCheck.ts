@@ -67,3 +67,4 @@ export class RoughBoxCheck extends Shape {
         context.fillStrokeShape(this); // Ensures Konva detects interactivity
     }
 }
+RoughBoxCheck.prototype.className = "RoughBoxCheck"

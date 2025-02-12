@@ -76,3 +76,4 @@ export class RoughBoxX extends Shape {
         context.fillStrokeShape(this); // Ensures Konva detects it as an interactive shape
     }
 }
+RoughBoxX.prototype.className = "RoughBoxX"

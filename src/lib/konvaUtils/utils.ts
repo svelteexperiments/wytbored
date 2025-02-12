@@ -1,10 +1,35 @@
 import { Layer } from "konva/lib/Layer.js";
-import { Shape } from "konva/lib/Shape.js";
+import { Shape, type ShapeConfig } from "konva/lib/Shape.js";
 import { Transformer } from "konva/lib/shapes/Transformer.js";
 import { Stage } from "konva/lib/Stage.js";
-import { addImage, addTextNode, editingText, resetStage, selectTool } from "./tools.js";
+import { addImage, addTextNode, editingText, resetStage, selectTool, textNodeDblClickTapEventHandler } from "./tools.js";
 import { get, writable } from "svelte/store";
 import { Group } from "konva/lib/Group.js";
+import { RoughLine } from "$lib/shapes/RoughLine.js";
+import { Line } from "konva/lib/shapes/Line.js";
+import { Arrow } from "konva/lib/shapes/Arrow.js";
+import { RoughRect } from "$lib/shapes/RoughRect.js";
+import { RoughCircle } from "$lib/shapes/RoughCircle.js";
+import { Text } from "konva/lib/shapes/Text.js";
+import { RoughPolygon } from "$lib/shapes/RoughPolygon.js";
+import { RoughStar } from "$lib/shapes/RoughStar.js";
+import { RoughHeart } from "$lib/shapes/RoughHeart.js";
+import { RoughBoxX } from "$lib/shapes/RoughBoxX.js";
+import { RoughBoxCheck } from "$lib/shapes/RoughBoxCheck.js";
+
+const ShapeMapping = {
+    'Text': Text,
+    'Line': Line,
+    'Arrow': Arrow,
+    'RoughRect': RoughRect,
+    'RoughCircle': RoughCircle,
+    'RoughPolygon': RoughPolygon,
+    'RoughStar': RoughStar,
+    'RoughHeart': RoughHeart,
+    'RoughBoxX': RoughBoxX,
+    'RoughBoxCheck': RoughBoxCheck,
+    'RoughLine': RoughLine
+}
 
 export const isHelpModalOpen = writable<boolean>(false)
 export const isToastOpen = writable<boolean>(false);
@@ -177,3 +202,20 @@ export const registerDefaultEvents = (stage: Stage) => {
     })
 }
 
+export const recreateElements = (stage: Stage, layer: Layer, elements: any[]) => {
+    elements.forEach(element => {
+        if (Object.keys(ShapeMapping).includes(element.className)) {
+            // @ts-ignore
+            const shape = new ShapeMapping[element.className]({
+                ...element.attrs
+            })
+            if (element.className === "Text") {
+                shape.on('dblclick dbltap', () => {
+                    textNodeDblClickTapEventHandler(stage, shape)
+                })
+            }
+            layer.add(shape)
+        }
+    });
+    layer.batchDraw()
+}

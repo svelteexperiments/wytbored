@@ -83,3 +83,4 @@ export class RoughHeart extends Shape {
   }
 
 }
+RoughHeart.prototype.className = "RoughHeart"
