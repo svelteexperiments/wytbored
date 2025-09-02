@@ -51,7 +51,7 @@
   <button class="close-button" onclick={closeModal}>
     <X />
   </button>
-  <h2 class="mb-4 text-lg font-semibold">Sveltedraw Shortcuts</h2>
+  <h2 class="mb-4 text-lg font-semibold">WytBored Shortcuts</h2>
   <table class="min-w-full table-auto border-collapse">
     <thead>
       <tr>

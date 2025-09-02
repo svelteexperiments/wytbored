@@ -54,13 +54,13 @@
       pixelRatio: 3,
     });
     tempGroup.destroy();
-    downloadURI(dataURL, `SvelteDraw_${Date.now()}.png`);
+    downloadURI(dataURL, `WytBored_${Date.now()}.png`);
     toggleDropdown();
   };
   const exportJSON = () => {
     const json = stage.toJSON();
     const dataURL = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(json));
-    downloadURI(dataURL, `SvelteDraw_${Date.now()}.json`);
+    downloadURI(dataURL, `WytBored_${Date.now()}.json`);
     toggleDropdown();
   };
   const importJSON = () => {

@@ -1,7 +1,7 @@
 <script>
-  import SvelteDraw from "$lib/konvaUtils/SvelteDraw.svelte";
+  import WytBored from "$lib/konvaUtils/WytBored.svelte";
 </script>
 
 <div class="w-[100dvw] h-[100dvh]">
-  <SvelteDraw />
+  <WytBored />
 </div>
