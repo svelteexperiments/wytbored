@@ -4,6 +4,6 @@
 </script>
 
 <svelte:head>
-  <title>Svelte Whiteboard</title>
+  <title>WytBored</title>
 </svelte:head>
 {@render children()}
